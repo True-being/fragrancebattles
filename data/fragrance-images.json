@@ -1,0 +1,616 @@
+{
+  "metadata": {
+    "note": "Image URLs from official brand sites and authorized retailers. For production use, consider caching these locally or using an affiliate relationship.",
+    "last_updated": "2026-01-22",
+    "sources": {
+      "official": "Brand official websites - highest quality",
+      "sephora": "sephora.com - consistent formatting",
+      "nordstrom": "nordstrom.com - luxury brands",
+      "fragrantica": "fragrantica.com - comprehensive database"
+    }
+  },
+  "fragrances": [
+    {
+      "name": "Aventus",
+      "brand": "Creed",
+      "image_sources": {
+        "official": "https://www.creedfragrances.co.uk/products/aventus",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.13471.jpg"
+      }
+    },
+    {
+      "name": "Bleu de Chanel",
+      "brand": "Chanel",
+      "image_sources": {
+        "official": "https://www.chanel.com/us/fragrance/men/c/7x1x1x7/bleu-de-chanel/",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.25967.jpg"
+      }
+    },
+    {
+      "name": "Sauvage",
+      "brand": "Dior",
+      "image_sources": {
+        "official": "https://www.dior.com/en_us/beauty/fragrance/mens-fragrance/sauvage.html",
+        "sephora": "https://www.sephora.com/product/sauvage-P400057",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.31861.jpg"
+      }
+    },
+    {
+      "name": "La Nuit de L'Homme",
+      "brand": "Yves Saint Laurent",
+      "image_sources": {
+        "official": "https://www.yslbeautyus.com/fragrance/la-nuit-de-lhomme/",
+        "sephora": "https://www.sephora.com/product/la-nuit-de-l-homme-P243320",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.5521.jpg"
+      }
+    },
+    {
+      "name": "Acqua di Gio Profumo",
+      "brand": "Giorgio Armani",
+      "image_sources": {
+        "official": "https://www.armanibeauty.com/acqua-di-gio-profumo",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.28609.jpg"
+      }
+    },
+    {
+      "name": "Le Male",
+      "brand": "Jean Paul Gaultier",
+      "image_sources": {
+        "official": "https://www.jeanpaulgaultier.com/us/fragrance/le-male",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.427.jpg"
+      }
+    },
+    {
+      "name": "Tobacco Vanille",
+      "brand": "Tom Ford",
+      "image_sources": {
+        "official": "https://www.tomfordbeauty.com/products/fragrance/tobacco-vanille",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.1825.jpg"
+      }
+    },
+    {
+      "name": "Oud Wood",
+      "brand": "Tom Ford",
+      "image_sources": {
+        "official": "https://www.tomfordbeauty.com/products/fragrance/oud-wood",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.1826.jpg"
+      }
+    },
+    {
+      "name": "Green Irish Tweed",
+      "brand": "Creed",
+      "image_sources": {
+        "official": "https://www.creedfragrances.co.uk/products/green-irish-tweed",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.474.jpg"
+      }
+    },
+    {
+      "name": "Versace Eros",
+      "brand": "Versace",
+      "image_sources": {
+        "official": "https://www.versace.com/us/en/fragrance/eros/",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.16725.jpg"
+      }
+    },
+    {
+      "name": "1 Million",
+      "brand": "Paco Rabanne",
+      "image_sources": {
+        "official": "https://www.pacorabanne.com/us/1-million",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.3747.jpg"
+      }
+    },
+    {
+      "name": "Spicebomb Extreme",
+      "brand": "Viktor & Rolf",
+      "image_sources": {
+        "official": "https://www.viktor-rolf.com/us/spicebomb-extreme",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.32096.jpg"
+      }
+    },
+    {
+      "name": "Dylan Blue",
+      "brand": "Versace",
+      "image_sources": {
+        "official": "https://www.versace.com/us/en/fragrance/dylan-blue/",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.34917.jpg"
+      }
+    },
+    {
+      "name": "Y Eau de Parfum",
+      "brand": "Yves Saint Laurent",
+      "image_sources": {
+        "official": "https://www.yslbeautyus.com/fragrance/y/",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.47060.jpg"
+      }
+    },
+    {
+      "name": "The One",
+      "brand": "Dolce & Gabbana",
+      "image_sources": {
+        "official": "https://www.dolcegabbana.com/beauty/fragrance/the-one/",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.1872.jpg"
+      }
+    },
+    {
+      "name": "Baccarat Rouge 540",
+      "brand": "Maison Francis Kurkdjian",
+      "image_sources": {
+        "official": "https://www.franciskurkdjian.com/us-en/landing-baccaratrouge540-eau-de-parfum.html",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.33519.jpg"
+      }
+    },
+    {
+      "name": "Lost Cherry",
+      "brand": "Tom Ford",
+      "image_sources": {
+        "official": "https://www.tomfordbeauty.com/products/fragrance/lost-cherry",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.50525.jpg"
+      }
+    },
+    {
+      "name": "Black Orchid",
+      "brand": "Tom Ford",
+      "image_sources": {
+        "official": "https://www.tomfordbeauty.com/products/fragrance/black-orchid",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.1408.jpg"
+      }
+    },
+    {
+      "name": "Chanel No. 5",
+      "brand": "Chanel",
+      "image_sources": {
+        "official": "https://www.chanel.com/us/fragrance/p/no5/",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.607.jpg"
+      }
+    },
+    {
+      "name": "Miss Dior",
+      "brand": "Dior",
+      "image_sources": {
+        "official": "https://www.dior.com/en_us/beauty/fragrance/womens-fragrance/miss-dior.html",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.98.jpg"
+      }
+    },
+    {
+      "name": "J'adore",
+      "brand": "Dior",
+      "image_sources": {
+        "official": "https://www.dior.com/en_us/beauty/fragrance/womens-fragrance/jadore.html",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.212.jpg"
+      }
+    },
+    {
+      "name": "Coco Mademoiselle",
+      "brand": "Chanel",
+      "image_sources": {
+        "official": "https://www.chanel.com/us/fragrance/coco-mademoiselle/",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.611.jpg"
+      }
+    },
+    {
+      "name": "La Vie Est Belle",
+      "brand": "Lancôme",
+      "image_sources": {
+        "official": "https://www.lancome-usa.com/fragrance/la-vie-est-belle/",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.15036.jpg"
+      }
+    },
+    {
+      "name": "Good Girl",
+      "brand": "Carolina Herrera",
+      "image_sources": {
+        "official": "https://www.carolinaherrera.com/us/en/fragrance/good-girl/",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.36679.jpg"
+      }
+    },
+    {
+      "name": "Libre",
+      "brand": "Yves Saint Laurent",
+      "image_sources": {
+        "official": "https://www.yslbeautyus.com/fragrance/libre/",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.55028.jpg"
+      }
+    },
+    {
+      "name": "Flowerbomb",
+      "brand": "Viktor & Rolf",
+      "image_sources": {
+        "official": "https://www.viktor-rolf.com/us/flowerbomb",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.2631.jpg"
+      }
+    },
+    {
+      "name": "Mon Paris",
+      "brand": "Yves Saint Laurent",
+      "image_sources": {
+        "official": "https://www.yslbeautyus.com/fragrance/mon-paris/",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.34428.jpg"
+      }
+    },
+    {
+      "name": "Delina",
+      "brand": "Parfums de Marly",
+      "image_sources": {
+        "official": "https://parfums-de-marly.com/products/delina",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.47078.jpg"
+      }
+    },
+    {
+      "name": "Love, Don't Be Shy",
+      "brand": "Kilian",
+      "image_sources": {
+        "official": "https://www.bykilian.com/product/love-don-t-be-shy",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.2819.jpg"
+      }
+    },
+    {
+      "name": "Chance Eau Tendre",
+      "brand": "Chanel",
+      "image_sources": {
+        "official": "https://www.chanel.com/us/fragrance/chance/",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.5014.jpg"
+      }
+    },
+    {
+      "name": "Layton",
+      "brand": "Parfums de Marly",
+      "image_sources": {
+        "official": "https://parfums-de-marly.com/products/layton",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.37302.jpg"
+      }
+    },
+    {
+      "name": "Pegasus",
+      "brand": "Parfums de Marly",
+      "image_sources": {
+        "official": "https://parfums-de-marly.com/products/pegasus",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.16927.jpg"
+      }
+    },
+    {
+      "name": "Herod",
+      "brand": "Parfums de Marly",
+      "image_sources": {
+        "official": "https://parfums-de-marly.com/products/herod",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.14875.jpg"
+      }
+    },
+    {
+      "name": "Percival",
+      "brand": "Parfums de Marly",
+      "image_sources": {
+        "official": "https://parfums-de-marly.com/products/percival",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.51792.jpg"
+      }
+    },
+    {
+      "name": "Naxos",
+      "brand": "Xerjoff",
+      "image_sources": {
+        "official": "https://xerjoff.com/product/naxos/",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.34099.jpg"
+      }
+    },
+    {
+      "name": "Erba Pura",
+      "brand": "Xerjoff",
+      "image_sources": {
+        "official": "https://xerjoff.com/product/erba-pura/",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.44308.jpg"
+      }
+    },
+    {
+      "name": "Hacivat",
+      "brand": "Nishane",
+      "image_sources": {
+        "official": "https://nishane.com/product/hacivat/",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.43232.jpg"
+      }
+    },
+    {
+      "name": "Ani",
+      "brand": "Nishane",
+      "image_sources": {
+        "official": "https://nishane.com/product/ani/",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.47296.jpg"
+      }
+    },
+    {
+      "name": "Virgin Island Water",
+      "brand": "Creed",
+      "image_sources": {
+        "official": "https://www.creedfragrances.co.uk/products/virgin-island-water",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.1881.jpg"
+      }
+    },
+    {
+      "name": "Silver Mountain Water",
+      "brand": "Creed",
+      "image_sources": {
+        "official": "https://www.creedfragrances.co.uk/products/silver-mountain-water",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.472.jpg"
+      }
+    },
+    {
+      "name": "Millesime Imperial",
+      "brand": "Creed",
+      "image_sources": {
+        "official": "https://www.creedfragrances.co.uk/products/millesime-imperial",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.467.jpg"
+      }
+    },
+    {
+      "name": "Royal Oud",
+      "brand": "Creed",
+      "image_sources": {
+        "official": "https://www.creedfragrances.co.uk/products/royal-oud",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.12747.jpg"
+      }
+    },
+    {
+      "name": "Tuscan Leather",
+      "brand": "Tom Ford",
+      "image_sources": {
+        "official": "https://www.tomfordbeauty.com/products/fragrance/tuscan-leather",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.1827.jpg"
+      }
+    },
+    {
+      "name": "Fucking Fabulous",
+      "brand": "Tom Ford",
+      "image_sources": {
+        "official": "https://www.tomfordbeauty.com/products/fragrance/fabulous",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.44996.jpg"
+      }
+    },
+    {
+      "name": "Bitter Peach",
+      "brand": "Tom Ford",
+      "image_sources": {
+        "official": "https://www.tomfordbeauty.com/products/fragrance/bitter-peach",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.62854.jpg"
+      }
+    },
+    {
+      "name": "Neroli Portofino",
+      "brand": "Tom Ford",
+      "image_sources": {
+        "official": "https://www.tomfordbeauty.com/products/fragrance/neroli-portofino",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.12254.jpg"
+      }
+    },
+    {
+      "name": "Rose Prick",
+      "brand": "Tom Ford",
+      "image_sources": {
+        "official": "https://www.tomfordbeauty.com/products/fragrance/rose-prick",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.60282.jpg"
+      }
+    },
+    {
+      "name": "BR540 Extrait",
+      "brand": "Maison Francis Kurkdjian",
+      "image_sources": {
+        "official": "https://www.franciskurkdjian.com/us-en/baccarat-rouge-540-extrait-de-parfum.html",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.40908.jpg"
+      }
+    },
+    {
+      "name": "Grand Soir",
+      "brand": "Maison Francis Kurkdjian",
+      "image_sources": {
+        "official": "https://www.franciskurkdjian.com/us-en/grand-soir-eau-de-parfum.html",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.33518.jpg"
+      }
+    },
+    {
+      "name": "Ombre Leather",
+      "brand": "Tom Ford",
+      "image_sources": {
+        "official": "https://www.tomfordbeauty.com/products/fragrance/ombre-leather",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.49398.jpg"
+      }
+    },
+    {
+      "name": "Jazz Club",
+      "brand": "Maison Margiela",
+      "image_sources": {
+        "official": "https://www.maisonmargiela-fragrances.us/en/replica/jazz-club",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.20645.jpg"
+      }
+    },
+    {
+      "name": "By the Fireplace",
+      "brand": "Maison Margiela",
+      "image_sources": {
+        "official": "https://www.maisonmargiela-fragrances.us/en/replica/by-the-fireplace",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.27608.jpg"
+      }
+    },
+    {
+      "name": "Whispers in the Library",
+      "brand": "Maison Margiela",
+      "image_sources": {
+        "official": "https://www.maisonmargiela-fragrances.us/en/replica/whispers-in-the-library",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.55655.jpg"
+      }
+    },
+    {
+      "name": "Coffee Break",
+      "brand": "Maison Margiela",
+      "image_sources": {
+        "official": "https://www.maisonmargiela-fragrances.us/en/replica/coffee-break",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.43599.jpg"
+      }
+    },
+    {
+      "name": "Initio Oud for Greatness",
+      "brand": "Initio",
+      "image_sources": {
+        "official": "https://initioparfums.com/products/oud-for-greatness",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.41073.jpg"
+      }
+    },
+    {
+      "name": "Side Effect",
+      "brand": "Initio",
+      "image_sources": {
+        "official": "https://initioparfums.com/products/side-effect",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.41072.jpg"
+      }
+    },
+    {
+      "name": "Atomic Rose",
+      "brand": "Initio",
+      "image_sources": {
+        "official": "https://initioparfums.com/products/atomic-rose",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.50547.jpg"
+      }
+    },
+    {
+      "name": "Interlude Man",
+      "brand": "Amouage",
+      "image_sources": {
+        "official": "https://www.amouage.com/en-us/interlude-man.html",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.16118.jpg"
+      }
+    },
+    {
+      "name": "Reflection Man",
+      "brand": "Amouage",
+      "image_sources": {
+        "official": "https://www.amouage.com/en-us/reflection-man.html",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.3068.jpg"
+      }
+    },
+    {
+      "name": "Journey Man",
+      "brand": "Amouage",
+      "image_sources": {
+        "official": "https://www.amouage.com/en-us/journey-man.html",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.15091.jpg"
+      }
+    },
+    {
+      "name": "Memoir Man",
+      "brand": "Amouage",
+      "image_sources": {
+        "official": "https://www.amouage.com/en-us/memoir-man.html",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.9927.jpg"
+      }
+    },
+    {
+      "name": "Luna Rossa Carbon",
+      "brand": "Prada",
+      "image_sources": {
+        "official": "https://www.prada.com/us/en/beauty/luna-rossa-carbon.html",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.43490.jpg"
+      }
+    },
+    {
+      "name": "Luna Rossa Black",
+      "brand": "Prada",
+      "image_sources": {
+        "official": "https://www.prada.com/us/en/beauty/luna-rossa-black.html",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.53145.jpg"
+      }
+    },
+    {
+      "name": "L'Homme Ideal",
+      "brand": "Guerlain",
+      "image_sources": {
+        "official": "https://www.guerlain.com/us/en-us/fragrance/mens-fragrance/l-homme-ideal",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.27605.jpg"
+      }
+    },
+    {
+      "name": "Santal 33",
+      "brand": "Le Labo",
+      "image_sources": {
+        "official": "https://www.lelabofragrances.com/santal-33.html",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.16677.jpg"
+      }
+    },
+    {
+      "name": "Another 13",
+      "brand": "Le Labo",
+      "image_sources": {
+        "official": "https://www.lelabofragrances.com/another-13.html",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.16692.jpg"
+      }
+    },
+    {
+      "name": "Rose 31",
+      "brand": "Le Labo",
+      "image_sources": {
+        "official": "https://www.lelabofragrances.com/rose-31.html",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.16688.jpg"
+      }
+    },
+    {
+      "name": "Bergamote 22",
+      "brand": "Le Labo",
+      "image_sources": {
+        "official": "https://www.lelabofragrances.com/bergamote-22.html",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.16680.jpg"
+      }
+    },
+    {
+      "name": "Portrait of a Lady",
+      "brand": "Frederic Malle",
+      "image_sources": {
+        "official": "https://www.fredericmalle.com/product/portrait-of-a-lady",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.11096.jpg"
+      }
+    },
+    {
+      "name": "The Night",
+      "brand": "Frederic Malle",
+      "image_sources": {
+        "official": "https://www.fredericmalle.com/product/the-night",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.54147.jpg"
+      }
+    },
+    {
+      "name": "Invictus",
+      "brand": "Paco Rabanne",
+      "image_sources": {
+        "official": "https://www.pacorabanne.com/us/invictus",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.18821.jpg"
+      }
+    },
+    {
+      "name": "Wanted by Night",
+      "brand": "Azzaro",
+      "image_sources": {
+        "official": "https://www.azzaroparis.com/en-us/wanted-by-night",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.47161.jpg"
+      }
+    },
+    {
+      "name": "The Most Wanted",
+      "brand": "Azzaro",
+      "image_sources": {
+        "official": "https://www.azzaroparis.com/en-us/the-most-wanted",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.64792.jpg"
+      }
+    },
+    {
+      "name": "Ultra Male",
+      "brand": "Jean Paul Gaultier",
+      "image_sources": {
+        "official": "https://www.jeanpaulgaultier.com/us/fragrance/ultra-male",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.27608.jpg"
+      }
+    },
+    {
+      "name": "Le Male Le Parfum",
+      "brand": "Jean Paul Gaultier",
+      "image_sources": {
+        "official": "https://www.jeanpaulgaultier.com/us/fragrance/le-male-le-parfum",
+        "fragrantica": "https://fimgs.net/mdimg/perfume/375x500.61696.jpg"
+      }
+    }
+  ]
+}

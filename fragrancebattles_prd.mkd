@@ -1,0 +1,299 @@
+Oh hell yes. This is *exactly* the right moment to lock this in before Cursor turns it into spaghetti.
+
+Below is a **clean, opinionated, Cursor-ready PRD**. You can paste this directly into Cursor and say *“build this exactly”*.
+
+---
+
+# 📄 PRODUCT REQUIREMENTS DOCUMENT (PRD)
+
+## Product Name (Working): **Fragrance Arena**
+
+**Tagline:** Two enter. One wins.
+
+---
+
+## 1. PRODUCT OVERVIEW
+
+### Problem
+
+Fragrance discovery and discussion is fragmented, subjective, and boring:
+
+* Static reviews
+* Popularity-biased lists
+* No sense of competition, movement, or taste signaling
+
+### Solution
+
+A head-to-head **arena-style voting website** where users choose between two fragrances in a given context. Rankings update dynamically using Elo-style scoring.
+
+This product **does not claim objectivity**. It explicitly ranks *collective taste, memory, and cultural impact*.
+
+---
+
+## 2. MVP GOAL (NON-NEGOTIABLE)
+
+> Allow users to repeatedly vote in fragrance battles and see rankings change in real time.
+
+**If it doesn’t serve this loop, it’s out of scope.**
+
+---
+
+## 3. CORE USER LOOP
+
+1. User lands on Arena page
+2. Sees two fragrances side-by-side
+3. Selects the winner
+4. Sees instant feedback (upset, alignment with others, rank movement)
+5. Next matchup auto-loads
+6. Loop repeats
+
+Target: **20+ votes per session**
+
+---
+
+## 4. MVP FEATURES (IN SCOPE)
+
+### 4.1 Arena Voting Page (Primary Page)
+
+**UI Elements**
+
+* Title + tagline
+* Arena selector (tabs or dropdown):
+
+  * Overall
+  * Masculine-leaning
+  * Feminine-leaning
+  * Unisex
+* Two fragrance cards:
+
+  * Bottle image
+  * Name
+  * Brand
+* “VS” visual indicator
+* Click/tap anywhere on card to vote
+
+**Post-Vote Feedback (Required)**
+Show 1–2 of the following after each vote:
+
+* “You agreed with X% of voters”
+* “Upset win 🔥”
+* “This fragrance is on a win/loss streak”
+* “Rank ▲ +2 / ▼ -1”
+
+Feedback must disappear automatically when next matchup loads.
+
+---
+
+### 4.2 Rankings Page
+
+**Tabs**
+
+* Overall
+* Masculine-leaning
+* Feminine-leaning
+* Unisex
+
+**Per fragrance row**
+
+* Rank
+* Bottle image (small)
+* Name + Brand
+* Rank movement indicator (▲ ▼ —)
+
+**Clicking a fragrance opens a lightweight modal or page showing:**
+
+* Win rate
+* Total battles
+* Strongest arena(s)
+* “Often beats” (top 3)
+* “Often loses to” (top 3)
+
+No long text. No reviews.
+
+---
+
+### 4.3 About / Philosophy Page
+
+Short, direct copy:
+
+> Fragrance Arena doesn’t rank “quality.”
+>
+> It ranks collective taste, memory, and cultural impact — right now.
+>
+> Smell is subjective. This is the argument.
+
+This page is mandatory to preempt criticism.
+
+---
+
+## 5. ARENAS (IMPORTANT CLARIFICATION)
+
+* Arenas define **context of voting**, not permanent classification
+* A fragrance may exist in multiple arenas
+* Arenas are fixed for MVP:
+
+  * Overall
+  * Masculine-leaning
+  * Feminine-leaning
+  * Unisex
+
+No vibe-based arenas in MVP.
+
+---
+
+## 6. MATCHMAKING LOGIC (CRITICAL)
+
+### Requirements
+
+* Do NOT serve purely random matchups
+* Do NOT always show top fragrances
+
+### Basic Rules
+
+* 60%: Match fragrances with similar Elo
+* 25%: Force potential upsets (lower vs higher)
+* 15%: Popular vs obscure
+
+Avoid repeat pairings within a short session.
+
+---
+
+## 7. RANKING SYSTEM
+
+### Scoring
+
+* Use **Elo rating system**
+* Separate Elo per arena
+* Rankings are derived from Elo (not raw vote count)
+
+### Visibility
+
+* Elo is hidden
+* Rank position is public
+* Rank movement shown post-vote
+
+---
+
+## 8. DATA MODEL (MVP SCHEMA)
+
+### Fragrances
+
+```
+id
+name
+brand
+image_url
+arena_flags (overall, masculine, feminine, unisex)
+created_at
+```
+
+### Battles
+
+```
+id
+arena
+fragrance_a_id
+fragrance_b_id
+elo_a_before
+elo_b_before
+elo_a_after
+elo_b_after
+winner_id
+created_at
+```
+
+### Votes
+
+```
+id
+battle_id
+winner_id
+session_id
+created_at
+```
+
+### Rankings (derived, not stored permanently)
+
+* Computed from Elo per arena
+
+---
+
+## 9. SESSION & ABUSE CONTROL
+
+* No accounts in MVP
+* Anonymous session ID stored locally
+* Rate limit voting per session
+* Prevent same matchup from repeating in short window
+
+---
+
+## 10. DESIGN REQUIREMENTS
+
+### Visual Tone
+
+* Dark
+* Minimal
+* Editorial
+* Confrontational
+
+### UI Rules
+
+* Black or near-black background
+* Large bottle images
+* Bold typography
+* No clutter
+* No ads
+* No “social” UI
+
+This should feel like a **taste battleground**, not a store.
+
+---
+
+## 11. NON-GOALS (DO NOT BUILD)
+
+❌ User accounts
+❌ Comments
+❌ Reviews
+❌ Note breakdowns
+❌ Longevity/sillage metrics
+❌ Affiliate links
+❌ Shopping
+❌ AI recommendations
+
+---
+
+## 12. SUCCESS METRICS (MVP)
+
+Primary:
+
+* Average votes per session ≥ 20
+* Daily ranking movement
+* Return visits without incentives
+
+Secondary:
+
+* Screenshots shared externally
+* Arguments on social media
+* “This ranking is bullshit” reactions
+
+---
+
+## 13. FUTURE (OUT OF SCOPE)
+
+* Vibe-based arenas
+* Blind voting
+* User profiles
+* Taste graphs
+* Brand analytics
+* Monetization
+
+---
+
+## 14. LAUNCH PHILOSOPHY
+
+Ship fast.
+Expect disagreement.
+Embrace controversy.
+Never claim objectivity.
+
+---

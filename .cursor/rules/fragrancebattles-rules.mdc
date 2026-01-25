@@ -1,0 +1,226 @@
+---
+name: fragrancebattles-rules
+description: This is a new rule
+---
+
+# Overview
+
+You are building a **high-contrast, SEO-first, opinionated web product** focused on **head-to-head fragrance comparison and rankings**.
+
+This product is **NOT**:
+
+* a review site
+* an e-commerce site
+* a social network
+* a dashboard
+* a generic SaaS app
+
+It is a **taste arena**.
+
+---
+
+## CORE PRODUCT LOOP
+
+Users repeatedly:
+
+1. See two fragrances in a head-to-head matchup
+2. Choose the winner instantly
+3. Receive brief feedback (upset, alignment, rank movement)
+4. Immediately see the next matchup
+
+Speed, clarity, and momentum are critical.
+
+---
+
+## DESIGN PRINCIPLES (NON-NEGOTIABLE)
+
+* Dark background
+* Minimal UI
+* Large visuals
+* Bold typography
+* Zero clutter
+* No unnecessary animations
+* No generic SaaS components
+
+The UI should feel:
+
+* decisive
+* confident
+* slightly confrontational
+* premium but restrained
+
+Avoid:
+
+* decorative gradients
+* busy layouts
+* playful or whimsical UI
+
+---
+
+## PAGE INVENTORY (DO NOT ADD MORE)
+
+Build **only** the following pages:
+
+* `/` — Arena voting page
+* `/rankings` — Fragrance rankings by category
+* `/fragrance/[slug]` — Lightweight fragrance detail page
+* `/about` — Philosophy / explanation
+* `/privacy` — Privacy policy
+
+Do not create additional pages unless explicitly requested.
+
+---
+
+## ARENAS (CONTEXTUAL, NOT ABSOLUTE)
+
+The following arenas exist:
+
+* Overall
+* Masculine-leaning
+* Feminine-leaning
+* Unisex
+
+Arenas define **voting context**, not permanent classification.
+
+A fragrance may exist in multiple arenas.
+
+---
+
+## MATCHMAKING & RANKING LOGIC
+
+* Use an **Elo-based ranking system**
+* Maintain separate Elo per arena
+* Rankings are derived from Elo, not raw votes
+* Elo values are hidden from users
+
+Matchmaking rules:
+
+* Prefer similar-ranked fragrances
+* Occasionally force upsets
+* Avoid repeating matchups in short windows
+
+---
+
+## POST-VOTE FEEDBACK (REQUIRED)
+
+After each vote, show 1–2 brief feedback messages:
+
+* “You agreed with X% of voters”
+* “Upset win”
+* “This fragrance moved up/down”
+* “Winning streak / losing streak”
+
+Feedback should auto-dismiss and load the next matchup without friction.
+
+---
+
+## SEO REQUIREMENTS (CRITICAL)
+
+This is an **SEO-driven product**.
+
+* Every page must have a unique, descriptive `<title>`
+* Every page must have a single clear `<h1>`
+* Rankings pages must be crawlable and server-rendered
+* Fragrance detail pages must be indexable
+* Use clean, human-readable URLs
+* Avoid JS-only rendering for critical content
+* Do not hide rankings behind client-only state
+
+---
+
+## DATA MODEL EXPECTATIONS
+
+Minimum required data entities:
+
+* Fragrances
+* Battles
+* Votes
+* Derived rankings
+
+No user accounts in MVP.
+Use anonymous sessions with rate limiting.
+
+---
+
+## EXPLICITLY FORBIDDEN FEATURES
+
+Do **NOT** add:
+
+* user accounts or authentication
+* comments or reviews
+* star ratings
+* shopping or affiliate links
+* accord charts
+* note breakdowns
+* recommendation engines
+* AI-generated explanations
+* social sharing popups
+* onboarding flows
+
+If a feature is not explicitly required, do not add it.
+
+---
+
+## INTERACTION REQUIREMENTS
+
+* Voting must feel instant
+* No confirmation modals
+* No page refresh after voting
+* Next matchup loads automatically
+* Users should be able to vote 20+ times per session without friction
+
+---
+
+## PERFORMANCE CONSTRAINTS
+
+* Optimize for speed and responsiveness
+* Avoid heavy animation libraries
+* Prefer CSS transitions
+* Optimize and lazy-load images
+* Prioritize Lighthouse performance over visual flair
+
+---
+
+## ERROR & EDGE CASE HANDLING
+
+* If insufficient data exists, still show rankings
+* If images fail, degrade gracefully
+* Never block the user from voting due to minor errors
+
+---
+
+## PRODUCT PHILOSOPHY (IMPORTANT)
+
+This product **does not claim objectivity**.
+
+It ranks:
+
+* collective taste
+* memory
+* cultural impact
+
+Disagreement is expected and desired.
+
+---
+
+## BUILD WITH EXTENSIBILITY IN MIND
+
+Future features (out of scope for now) may include:
+
+* new arenas
+* blind voting
+* tournaments
+
+Do not prematurely optimize or build these now.
+
+---
+
+**If there is ever ambiguity, prioritize:**
+
+1. Simplicity
+2. Clarity
+3. SEO
+4. Speed
+5. Momentum
+
+---

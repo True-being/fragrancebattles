@@ -1,0 +1,292 @@
+
+# ✅ Firebase Build Order (Next.js + Firestore)
+
+## Phase 0 — Firebase Setup
+
+1. Create Firebase project
+2. Enable **Firestore**
+3. Create **Web App** in Firebase console
+4. Add env vars to `.env.local`:
+
+   * `NEXT_PUBLIC_FIREBASE_API_KEY`
+   * `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
+   * `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
+   * `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
+   * `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
+   * `NEXT_PUBLIC_FIREBASE_APP_ID`
+5. Create `lib/firebase/client.ts` (firebase/app + firestore)
+6. Create `lib/firebase/admin.ts` (firebase-admin) for server-side writes
+
+**Deliverable:** Next.js can read from Firestore (client) and write using admin SDK on server routes.
+
+---
+
+## Phase 1 — Firestore Schema (MVP)
+
+Use this schema exactly. It’s simple, queryable, and SEO-friendly.
+
+### `fragrances/{fragranceId}`
+
+```ts
+{
+  name: string,              // "Aventus"
+  brand: string,             // "Creed"
+  slug: string,              // "creed-aventus"
+  imageUrl: string,          // bottle image
+  arenas: {                  // membership flags
+    overall: boolean,
+    masculine: boolean,
+    feminine: boolean,
+    unisex: boolean
+  },
+
+  // Elo per arena (store directly here for fast rankings)
+  elo: {
+    overall: number,
+    masculine: number,
+    feminine: number,
+    unisex: number
+  },
+
+  stats: {                   // lightweight counters
+    battles: {
+      overall: number,
+      masculine: number,
+      feminine: number,
+      unisex: number
+    },
+    wins: {
+      overall: number,
+      masculine: number,
+      feminine: number,
+      unisex: number
+    }
+  },
+
+  createdAt: Timestamp,
+  updatedAt: Timestamp
+}
+```
+
+### `battles/{battleId}`
+
+```ts
+{
+  arena: "overall" | "masculine" | "feminine" | "unisex",
+
+  aId: string,
+  bId: string,
+
+  aEloBefore: number,
+  bEloBefore: number,
+  aEloAfter: number | null,
+  bEloAfter: number | null,
+
+  winnerId: string | null,
+
+  createdAt: Timestamp
+}
+```
+
+### `votes/{voteId}`
+
+```ts
+{
+  battleId: string,
+  arena: "overall" | "masculine" | "feminine" | "unisex",
+  winnerId: string,
+  loserId: string,
+  sessionId: string,
+  createdAt: Timestamp
+}
+```
+
+### `sessions/{sessionId}` (optional but recommended)
+
+Used for anti-repeat + rate limit.
+
+```ts
+{
+  createdAt: Timestamp,
+  lastSeenAt: Timestamp,
+  recentPairKeys: string[],      // e.g. ["overall|idA|idB", ...] capped at N=30
+  votesLastHour: number,
+  votesLastDay: number
+}
+```
+
+**Deliverable:** Firestore has collections and types are mirrored in code.
+
+---
+
+## Phase 2 — Seed Data Pipeline (must happen early)
+
+1. Create `data/fragrances.seed.json`
+2. Create `scripts/seedFirestore.ts` using firebase-admin
+3. Seed ~75 fragrances, all Elo = 1500 baseline
+4. Ensure `slug` is unique and derived from brand+name
+
+**Deliverable:** database isn’t empty; rankings page can exist day 1.
+
+---
+
+## Phase 3 — Elo + Matchmaking Engine (server-only)
+
+### Elo rules (simple MVP)
+
+* `K = 24` initially (tweak later)
+* Expected score:
+
+  * `Ea = 1 / (1 + 10^((Rb - Ra)/400))`
+* Update:
+
+  * `Ra' = Ra + K * (Sa - Ea)` where Sa is 1 if win else 0
+
+### Matchmaking approach (Firestore-friendly)
+
+We need “similar Elo” selection without complex queries.
+
+**Implementation trick:** use Elo “bands”
+
+* band size 100 Elo
+* compute `band = floor(elo / 100)` and store per arena (optional optimization)
+* OR do a lightweight in-memory selection from a fetched pool
+
+**MVP-safe method:**
+
+* Fetch a pool of ~30 fragrances in the arena (random-ish)
+* Choose pair using weighted heuristics in server code
+
+**Deliverable:** function `getNextBattle(arena, sessionId)` returns two fragrances.
+
+---
+
+## Phase 4 — API Routes (transaction-safe voting)
+
+Do this with **Next.js route handlers** using firebase-admin.
+
+### `GET /api/battle/next?arena=overall&sessionId=abc`
+
+Server:
+
+* validate arena
+* get session recent pairs
+* pick two fragrances (avoid repeats)
+* create a `battles` doc with `winnerId=null` and elos-before recorded
+* return battle + fragrance objects
+
+### `POST /api/vote`
+
+Body:
+
+```json
+{ "battleId": "...", "winnerId": "...", "sessionId": "..." }
+```
+
+**IMPORTANT:** Voting must be a Firestore **transaction** to prevent double-votes and Elo corruption.
+
+Transaction steps:
+
+1. Read `battle`
+2. If `battle.winnerId` is already set → reject (idempotency)
+3. Read both `fragrance` docs
+4. Compute Elo updates for that arena
+5. Update:
+
+   * `battle.winnerId`, `aEloAfter`, `bEloAfter`
+   * both fragrance `elo[arena]`
+   * increment stats: battles +1, winner wins +1
+6. Write a `votes` doc (unique by `battleId+sessionId` optionally)
+
+Return:
+
+* upset boolean (if winner had lower Elo before)
+* agreePercent (optional approximation: compute from last N votes for that battle; or skip MVP)
+* updated Elo values
+
+**Deliverable:** Elo is consistent under spam clicking.
+
+---
+
+## Phase 5 — UI: Arena Page `/`
+
+1. Arena selector (Overall/Masc/Fem/Unisex)
+2. Load `GET /api/battle/next`
+3. Render two large cards (image + name + brand)
+4. On click:
+
+   * disable inputs
+   * POST `/api/vote`
+   * show 1–2 feedback lines for ~1s
+   * fetch next battle and render
+
+Session ID:
+
+* generate UUID in localStorage if missing
+
+**Deliverable:** 20+ votes per session feels effortless.
+
+---
+
+## Phase 6 — Rankings Page `/rankings` (SSR)
+
+For SEO: this must be server-rendered.
+
+Query:
+
+* `fragrances` where `arenas.{arena} == true`
+* order by `elo.{arena} desc`
+* limit 100
+
+Render:
+
+* H1: “Fragrance Rankings — Overall” etc.
+* list with internal links to fragrance pages
+
+**Deliverable:** SEO landing page that loads instantly.
+
+---
+
+## Phase 7 — Fragrance Detail Page `/fragrance/[slug]` (SSR)
+
+Fetch by slug:
+
+* query `fragrances where slug == param limit 1`
+
+Show:
+
+* name, brand, image
+* Elo (optional hidden; show rank instead)
+* win rate for each arena it participates in
+* top 3 beats/loses:
+
+  * compute from `votes` collection (query recent N where winnerId/loserId match)
+  * OR defer this to Phase 9 if too heavy
+
+**Deliverable:** indexable pages that deepen internal linking.
+
+---
+
+## Phase 8 — About + Privacy
+
+Simple pages, linked in footer.
+
+---
+
+## Phase 9 — Anti-abuse + Indexing
+
+### Abuse controls
+
+* Rate limit votes per session (track in `sessions`)
+* Prevent repeated pairings with `recentPairKeys`
+* Prevent voting twice on same battle
+
+### Firestore Indexes you’ll need
+
+Firestore will prompt you when missing, but anticipate:
+
+* `fragrances` ordered by `elo.overall` with filter `arenas.overall == true`
+* same for masculine/feminine/unisex
+
+**Deliverable:** stable at mild scale, no obvious gaming.
+
