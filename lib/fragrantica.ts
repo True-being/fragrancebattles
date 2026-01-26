@@ -126,31 +126,29 @@ export function generateSlug(brand: string, name: string): string {
 
 /**
  * Scrape metadata from a Fragrantica page using Puppeteer
- * Returns partial data if some fields can't be extracted
+ * Uses Browserless.io for remote browser execution in production
  */
 export async function scrapeFragranticaMetadata(
   url: string
 ): Promise<FragranticaMetadata> {
   const metadata: FragranticaMetadata = {};
 
+  // Check for Browserless API key
+  const browserlessKey = process.env.BROWSERLESS_API_KEY;
+  if (!browserlessKey) {
+    console.warn("BROWSERLESS_API_KEY not set, skipping metadata scrape");
+    return metadata;
+  }
+
   let browser;
   try {
-    // Dynamic import to avoid loading Puppeteer on every request
-    const puppeteer = await import("puppeteer");
+    const puppeteer = await import("puppeteer-core");
     
-    console.log("Launching Puppeteer browser...");
+    console.log("Connecting to Browserless...");
     
-    browser = await puppeteer.default.launch({
-      headless: true,
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-gpu",
-        "--disable-software-rasterizer",
-        "--single-process",
-        "--no-zygote",
-      ],
+    // Connect to Browserless.io remote browser
+    browser = await puppeteer.default.connect({
+      browserWSEndpoint: `wss://chrome.browserless.io?token=${browserlessKey}`,
     });
 
     console.log("Browser launched, creating page...");
@@ -388,8 +386,8 @@ export async function scrapeFragranticaMetadata(
     console.error("Failed to scrape Fragrantica metadata:", error);
   } finally {
     if (browser) {
-      await browser.close();
-      console.log("Browser closed");
+      await browser.disconnect();
+      console.log("Disconnected from Browserless");
     }
   }
 
