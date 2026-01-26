@@ -38,3 +38,13 @@ next-env.d.ts
 
 # Firebase
 service-account.json
+
+# Large data files (seeded to Firestore, not needed in repo)
+data/fragrances.from-csv.json
+data/fragrances.seed.merged.json
+perfumes_table.csv
+
+# Keep small seed files:
+# data/fragrances.seed.json (original curated list)
+# data/fragrances.seed.with-images.json (curated + images)
+# data/fragrance-images.json (image mappings)
