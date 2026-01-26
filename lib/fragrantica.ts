@@ -133,26 +133,37 @@ export async function scrapeFragranticaMetadata(
 ): Promise<FragranticaMetadata> {
   const metadata: FragranticaMetadata = {};
 
-  // Dynamic import to avoid loading Puppeteer on every request
-  let puppeteer;
-  try {
-    puppeteer = await import("puppeteer");
-  } catch {
-    console.warn("Puppeteer not available, skipping metadata scrape");
-    return metadata;
-  }
-
   let browser;
   try {
-    browser = await puppeteer.default.launch({
-      headless: true,
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-gpu",
-      ],
-    });
+    // In production (serverless), use puppeteer-core + @sparticuz/chromium
+    // In development, use full puppeteer
+    // Detect serverless/cloud environments
+    // Firebase App Hosting runs on Cloud Run (K_SERVICE), Vercel, or AWS Lambda
+    const isServerless = process.env.K_SERVICE || process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
+    
+    if (isServerless) {
+      const puppeteerCore = await import("puppeteer-core");
+      const chromium = await import("@sparticuz/chromium");
+      
+      browser = await puppeteerCore.default.launch({
+        args: chromium.default.args,
+        defaultViewport: { width: 1280, height: 720 },
+        executablePath: await chromium.default.executablePath(),
+        headless: true,
+      });
+    } else {
+      // Local development - use full puppeteer
+      const puppeteer = await import("puppeteer");
+      browser = await puppeteer.default.launch({
+        headless: true,
+        args: [
+          "--no-sandbox",
+          "--disable-setuid-sandbox",
+          "--disable-dev-shm-usage",
+          "--disable-gpu",
+        ],
+      });
+    }
 
     const page = await browser.newPage();
 

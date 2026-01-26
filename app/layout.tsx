@@ -4,12 +4,12 @@ import "./globals.css";
 import NavBar from "@/components/NavBar";
 
 export const metadata: Metadata = {
-  title: "Fragrance Arena — Two Enter. One Wins.",
+  title: "Fragrance Battles — Two Enter. One Wins.",
   description:
     "Head-to-head fragrance battles. Vote for your favorites and see real-time rankings. The ultimate taste battleground.",
   keywords: ["fragrance", "perfume", "cologne", "rankings", "voting", "arena"],
   openGraph: {
-    title: "Fragrance Arena",
+    title: "Fragrance Battles",
     description: "Two Enter. One Wins.",
     type: "website",
   },
@@ -60,7 +60,7 @@ export default function RootLayout({
             </div>
             <div className="mt-6 pt-6 border-t border-arena-border/30 text-center">
               <p className="font-modern text-arena-muted/60 text-xs">
-                © {new Date().getFullYear()} Fragrance Arena
+                © {new Date().getFullYear()} Fragrance Battles
               </p>
             </div>
           </div>

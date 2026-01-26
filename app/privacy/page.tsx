@@ -1,9 +1,9 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy — Fragrance Arena",
+  title: "Privacy Policy — Fragrance Battles",
   description:
-    "Privacy policy for Fragrance Arena. We respect your privacy and collect minimal data.",
+    "Privacy policy for Fragrance Battles. We respect your privacy and collect minimal data.",
 };
 
 export default function PrivacyPage() {
@@ -38,7 +38,7 @@ export default function PrivacyPage() {
               <span className="font-elegant italic text-lg text-arena-light">Collect</span>
             </h2>
             <p className="font-modern text-arena-light mb-4">
-              Fragrance Arena is designed with privacy in mind. We collect the
+              Fragrance Battles is designed with privacy in mind. We collect the
               minimum amount of data necessary to operate the service:
             </p>
             <ul className="space-y-3">

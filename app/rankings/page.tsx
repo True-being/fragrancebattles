@@ -16,7 +16,7 @@ export async function generateMetadata({
   const arenaLabel = ARENA_LABELS[arena] || "Overall";
 
   return {
-    title: `${arenaLabel} Fragrance Rankings — Fragrance Arena`,
+    title: `${arenaLabel} Fragrance Rankings — Fragrance Battles`,
     description: `See the top-ranked ${arenaLabel.toLowerCase()} fragrances based on head-to-head voting. Rankings update in real time.`,
   };
 }

@@ -2,9 +2,9 @@ import { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "About — Fragrance Arena",
+  title: "About — Fragrance Battles",
   description:
-    "Fragrance Arena ranks collective taste, memory, and cultural impact through head-to-head battles. Smell is subjective. This is the argument.",
+    "Fragrance Battles ranks collective taste, memory, and cultural impact through head-to-head battles. Smell is subjective. This is the argument.",
 };
 
 export default function AboutPage() {
@@ -30,7 +30,7 @@ export default function AboutPage() {
             <span className="font-elegant text-arena-accent text-4xl">"</span>
           </div>
           <p className="font-editorial text-2xl text-arena-white leading-relaxed mb-4 italic">
-            Fragrance Arena doesn&apos;t rank quality.
+            Fragrance Battles doesn&apos;t rank quality.
           </p>
           <p className="font-editorial text-2xl text-arena-white leading-relaxed mb-4 italic">
             It ranks collective taste, memory, and cultural impact — <span className="text-arena-light">right now.</span>

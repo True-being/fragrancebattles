@@ -10,7 +10,7 @@ export default function NavBar() {
   const pathname = usePathname();
 
   const navLinks = [
-    { href: "/", label: "Arena" },
+    { href: "/", label: "Battle" },
     { href: "/rankings", label: "Rankings" },
     { href: "/about", label: "About" },
   ];
@@ -26,7 +26,7 @@ export default function NavBar() {
                 FRAGRANCE
               </span>
               <span className="font-elegant italic text-lg sm:text-xl text-arena-accent">
-                Arena
+                Battles
               </span>
             </Link>
 

@@ -63,12 +63,12 @@ export async function generateMetadata({
 
   if (!fragrance) {
     return {
-      title: "Fragrance Not Found — Fragrance Arena",
+      title: "Fragrance Not Found — Fragrance Battles",
     };
   }
 
   return {
-    title: `${fragrance.name} by ${fragrance.brand} — Fragrance Arena`,
+    title: `${fragrance.name} by ${fragrance.brand} — Fragrance Battles`,
     description: `See how ${fragrance.name} by ${fragrance.brand} ranks in head-to-head fragrance battles. View win rate, battles, and arena rankings.`,
     openGraph: {
       title: `${fragrance.name} by ${fragrance.brand}`,
