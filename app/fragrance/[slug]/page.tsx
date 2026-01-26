@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAdminFirestore } from "@/lib/firebase/admin";
-import { Fragrance, Arena, ARENAS, ARENA_LABELS } from "@/types";
+import { Fragrance, Arena, ARENAS, ARENA_LABELS, getFragranticaUrl } from "@/types";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -31,26 +31,27 @@ async function getFragranceBySlug(slug: string): Promise<Fragrance | null> {
   }
 }
 
-async function getArenaRankings(arena: Arena): Promise<Map<string, number>> {
+async function getArenaRank(
+  fragranceId: string,
+  arena: Arena,
+  fragranceElo: number
+): Promise<number> {
   try {
     const db = getAdminFirestore();
 
-    // Fetch all fragrances in this arena, ordered by Elo descending
+    // Count how many fragrances have higher Elo (more efficient than fetching all)
     const snapshot = await db
       .collection("fragrances")
       .where(`arenas.${arena}`, "==", true)
-      .orderBy(`elo.${arena}`, "desc")
+      .where(`elo.${arena}`, ">", fragranceElo)
+      .count()
       .get();
 
-    const rankMap = new Map<string, number>();
-    snapshot.docs.forEach((doc, index) => {
-      rankMap.set(doc.id, index + 1);
-    });
-
-    return rankMap;
+    // Rank is count of higher-ranked fragrances + 1
+    return snapshot.data().count + 1;
   } catch (error) {
-    console.error("Error getting arena rankings:", error);
-    return new Map();
+    console.error("Error getting arena rank:", error);
+    return 0;
   }
 }
 
@@ -88,17 +89,18 @@ export default async function FragranceDetailPage({ params }: PageProps) {
   // Get ranks for each arena the fragrance participates in
   const activeArenas = ARENAS.filter((arena) => fragrance.arenas[arena]);
   
-  // Fetch rankings for all active arenas in parallel
-  const arenaRankings = await Promise.all(
-    activeArenas.map((arena) => getArenaRankings(arena))
+  // Fetch ranks for all active arenas in parallel (using count query - much faster)
+  const arenaRanks = await Promise.all(
+    activeArenas.map((arena) =>
+      getArenaRank(fragrance.id, arena, fragrance.elo[arena] || 1500)
+    )
   );
   
   const arenaStats = activeArenas.map((arena, index) => {
     const elo = fragrance.elo[arena] || 1500;
     const battles = fragrance.stats?.battles?.[arena] || 0;
     const wins = fragrance.stats?.wins?.[arena] || 0;
-    const rankMap = arenaRankings[index];
-    const rank = rankMap.get(fragrance.id) || 0;
+    const rank = arenaRanks[index];
 
     return {
       arena,
@@ -155,6 +157,21 @@ export default async function FragranceDetailPage({ params }: PageProps) {
             <h1 className="font-elegant text-4xl md:text-5xl lg:text-6xl text-arena-white leading-tight mb-6">
               {fragrance.name}
             </h1>
+            {/* Year & Concentration badges */}
+            <div className="flex flex-wrap gap-2 justify-center md:justify-start mb-4">
+              {fragrance.year && (
+                <span className="px-3 py-1.5 font-modern text-xs bg-arena-dark border border-arena-border rounded-full text-arena-white">
+                  {fragrance.year}
+                </span>
+              )}
+              {fragrance.concentration && (
+                <span className="px-3 py-1.5 font-modern text-xs uppercase tracking-wider bg-arena-dark border border-arena-border rounded-full text-arena-light">
+                  {fragrance.concentration}
+                </span>
+              )}
+            </div>
+
+            {/* Arena badges */}
             <div className="flex flex-wrap gap-2 justify-center md:justify-start">
               {activeArenas.map((arena) => (
                 <span
@@ -168,6 +185,131 @@ export default async function FragranceDetailPage({ params }: PageProps) {
           </div>
         </div>
       </section>
+
+      {/* About Section */}
+      {(fragrance.description || fragrance.perfumer || fragrance.fragranticaId || fragrance.accords?.length || fragrance.notes) && (
+        <section className="max-w-4xl mx-auto px-4 pb-12">
+          <h2 className="mb-6 flex items-center gap-3">
+            <span className="text-xl">✨</span>
+            <span className="font-display text-2xl text-arena-white tracking-wider">ABOUT</span>
+          </h2>
+
+          <div className="glass rounded-xl border border-arena-border p-6 space-y-4">
+            {fragrance.perfumer && (
+              <div className="flex items-baseline gap-3">
+                <span className="font-modern text-arena-muted text-sm shrink-0">Perfumer</span>
+                <span className="font-elegant text-lg text-arena-white">{fragrance.perfumer}</span>
+              </div>
+            )}
+
+            {fragrance.accords && fragrance.accords.length > 0 && (
+              <div className="space-y-2">
+                <span className="font-modern text-arena-muted text-sm">Main Accords</span>
+                <div className="flex flex-wrap gap-2">
+                  {fragrance.accords.map((accord) => (
+                    <span
+                      key={accord}
+                      className="px-3 py-1.5 font-modern text-xs capitalize bg-arena-accent/20 border border-arena-accent/30 rounded-full text-arena-accent"
+                    >
+                      {accord}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {fragrance.notes && (fragrance.notes.top || fragrance.notes.middle || fragrance.notes.base) && (
+              <div className="space-y-4 pt-2">
+                <span className="font-modern text-arena-muted text-sm">Notes Pyramid</span>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {fragrance.notes.top && fragrance.notes.top.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="font-modern text-xs uppercase tracking-wider text-amber-400/80">Top</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {fragrance.notes.top.map((note) => (
+                          <span
+                            key={note}
+                            className="px-2 py-1 font-modern text-xs bg-amber-500/10 border border-amber-500/20 rounded text-amber-300/90"
+                          >
+                            {note}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {fragrance.notes.middle && fragrance.notes.middle.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="font-modern text-xs uppercase tracking-wider text-rose-400/80">Heart</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {fragrance.notes.middle.map((note) => (
+                          <span
+                            key={note}
+                            className="px-2 py-1 font-modern text-xs bg-rose-500/10 border border-rose-500/20 rounded text-rose-300/90"
+                          >
+                            {note}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {fragrance.notes.base && fragrance.notes.base.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="font-modern text-xs uppercase tracking-wider text-emerald-400/80">Base</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {fragrance.notes.base.map((note) => (
+                          <span
+                            key={note}
+                            className="px-2 py-1 font-modern text-xs bg-emerald-500/10 border border-emerald-500/20 rounded text-emerald-300/90"
+                          >
+                            {note}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Fallback: display all notes if no pyramid structure */}
+            {fragrance.notes?.all && fragrance.notes.all.length > 0 && !fragrance.notes.top && !fragrance.notes.middle && !fragrance.notes.base && (
+              <div className="space-y-2">
+                <span className="font-modern text-arena-muted text-sm">Notes</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {fragrance.notes.all.map((note) => (
+                    <span
+                      key={note}
+                      className="px-2 py-1 font-modern text-xs bg-arena-gray/50 border border-arena-border rounded text-arena-light"
+                    >
+                      {note}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {fragrance.description && (
+              <p className="font-editorial italic text-arena-light text-lg leading-relaxed">
+                {fragrance.description}
+              </p>
+            )}
+
+            {fragrance.fragranticaId && (
+              <a
+                href={getFragranticaUrl(fragrance.fragranticaId, fragrance.brand, fragrance.name)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 font-modern text-sm text-arena-accent hover:text-red-400 transition-colors group"
+              >
+                Learn more on Fragrantica
+                <svg className="w-4 h-4 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Stats Grid */}
       <section className="max-w-4xl mx-auto px-4 pb-16">

@@ -9,11 +9,15 @@ import { eloDifference } from "./elo";
 
 const POOL_SIZE = 30;
 const MAX_RECENT_PAIRS = 30;
+const CACHE_TTL_MS = 60 * 1000; // 1 minute cache
 
 interface MatchmakingResult {
   fragranceA: Fragrance;
   fragranceB: Fragrance;
 }
+
+// In-memory cache for fragrance pools (reduces reads significantly)
+const poolCache = new Map<string, { fragrances: Fragrance[]; expires: number }>();
 
 /**
  * Get recent pair keys for a session to avoid repeats
@@ -72,19 +76,28 @@ async function addRecentPair(
 }
 
 /**
- * Fetch a random pool of fragrances for an arena
+ * Fetch a random pool of fragrances for an arena (cached)
  */
 async function fetchFragrancePool(
   arena: Arena,
   limit: number = POOL_SIZE
 ): Promise<Fragrance[]> {
+  const cacheKey = arena;
+  const cached = poolCache.get(cacheKey);
+  
+  // Return cached pool if still valid
+  if (cached && cached.expires > Date.now()) {
+    const shuffled = [...cached.fragrances].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, limit);
+  }
+
   const db = getAdminFirestore();
   const fragrancesRef = db.collection("fragrances");
 
   // Query fragrances in this arena
   const snapshot = await fragrancesRef
     .where(`arenas.${arena}`, "==", true)
-    .limit(100) // Fetch more than we need for randomization
+    .limit(200) // Fetch larger pool for variety, cache it
     .get();
 
   if (snapshot.empty) {
@@ -95,6 +108,12 @@ async function fetchFragrancePool(
     id: doc.id,
     ...doc.data(),
   })) as Fragrance[];
+
+  // Cache the pool
+  poolCache.set(cacheKey, {
+    fragrances,
+    expires: Date.now() + CACHE_TTL_MS,
+  });
 
   // Shuffle and take the pool size
   const shuffled = fragrances.sort(() => Math.random() - 0.5);

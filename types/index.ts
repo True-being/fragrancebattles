@@ -46,6 +46,19 @@ export interface Fragrance {
   stats: ArenaStats;
   createdAt: Timestamp;
   updatedAt: Timestamp;
+  // Optional metadata
+  year?: number;
+  concentration?: string;
+  perfumer?: string;
+  description?: string;
+  fragranticaId?: number;
+  accords?: string[];
+  notes?: {
+    top?: string[];
+    middle?: string[];
+    base?: string[];
+    all?: string[]; // Fallback for fragrances without pyramid structure
+  };
 }
 
 // Fragrance without id (for creation)
@@ -104,6 +117,7 @@ export interface FragrancePublic {
   brand: string;
   slug: string;
   imageUrl: string;
+  year?: number;
 }
 
 export interface VoteRequest {
@@ -156,6 +170,24 @@ export interface FragranceDetail extends FragrancePublic {
   }[];
   oftenBeats: FragrancePublic[];
   oftenLosesTo: FragrancePublic[];
+  // Extended metadata for detail page
+  concentration?: string;
+  perfumer?: string;
+  description?: string;
+  fragranticaId?: number;
+  accords?: string[];
+  notes?: {
+    top?: string[];
+    middle?: string[];
+    base?: string[];
+    all?: string[];
+  };
+}
+
+// Helper to generate Fragrantica URL from ID
+export function getFragranticaUrl(fragranticaId: number, brand: string, name: string): string {
+  const slug = `${brand}-${name}`.replace(/[^a-zA-Z0-9]+/g, '-').replace(/-+/g, '-');
+  return `https://www.fragrantica.com/perfume/${encodeURIComponent(brand)}/${slug}-${fragranticaId}.html`;
 }
 
 // Utility function to generate pair key for anti-repeat

@@ -5,6 +5,7 @@ import {
   extractFragranceFromUrl,
   parseFragranticaUrl,
   generateSlug,
+  scrapeFragranticaMetadata,
 } from "@/lib/fragrantica";
 import { DEFAULT_ELO, type FragrancePublic, type ArenaFlags } from "@/types";
 
@@ -50,13 +51,38 @@ export async function POST(
       );
     }
 
-    // Build arenas - always include overall, use user selection for others
-    const arenas: ArenaFlags = {
-      overall: true,
-      masculine: inputArenas?.masculine ?? false,
-      feminine: inputArenas?.feminine ?? false,
-      unisex: inputArenas?.unisex ?? false,
-    };
+    // Scrape metadata from Fragrantica first (to get gender for arena detection)
+    const metadata = await scrapeFragranticaMetadata(url);
+
+    // Build arenas - always include overall
+    // Use scraped gender if available, otherwise fall back to user input
+    let arenas: ArenaFlags;
+    
+    if (metadata.gender) {
+      // Auto-detect from scraped page
+      arenas = {
+        overall: true,
+        masculine: metadata.gender === "masculine" || metadata.gender === "unisex",
+        feminine: metadata.gender === "feminine" || metadata.gender === "unisex",
+        unisex: metadata.gender === "unisex",
+      };
+    } else if (inputArenas) {
+      // Fall back to user-provided arenas
+      arenas = {
+        overall: true,
+        masculine: inputArenas.masculine ?? false,
+        feminine: inputArenas.feminine ?? false,
+        unisex: inputArenas.unisex ?? false,
+      };
+    } else {
+      // Default to overall only
+      arenas = {
+        overall: true,
+        masculine: false,
+        feminine: false,
+        unisex: false,
+      };
+    }
 
     // Extract fragrance data from URL
     const data = extractFragranceFromUrl(url, arenas);
@@ -118,6 +144,15 @@ export async function POST(
           unisex: 0,
         },
       },
+      // Store fragranticaId for "Learn more" link on detail page
+      fragranticaId: data.id,
+      // Scraped metadata (may be undefined if scraping failed)
+      ...(metadata.year && { year: metadata.year }),
+      ...(metadata.concentration && { concentration: metadata.concentration }),
+      ...(metadata.perfumer && { perfumer: metadata.perfumer }),
+      ...(metadata.description && { description: metadata.description }),
+      ...(metadata.accords && metadata.accords.length > 0 && { accords: metadata.accords }),
+      ...(metadata.notes && { notes: metadata.notes }),
       createdAt: now,
       updatedAt: now,
     };

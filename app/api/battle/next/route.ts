@@ -66,6 +66,7 @@ export async function GET(request: NextRequest) {
         brand: fragranceA.brand,
         slug: fragranceA.slug,
         imageUrl: fragranceA.imageUrl,
+        year: fragranceA.year,
       } as FragrancePublic,
       fragranceB: {
         id: fragranceB.id,
@@ -73,6 +74,7 @@ export async function GET(request: NextRequest) {
         brand: fragranceB.brand,
         slug: fragranceB.slug,
         imageUrl: fragranceB.imageUrl,
+        year: fragranceB.year,
       } as FragrancePublic,
     };
 

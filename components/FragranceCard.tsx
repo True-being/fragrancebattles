@@ -87,6 +87,12 @@ export default function FragranceCard({
         <h3 className="font-elegant text-2xl text-arena-white leading-tight">
           {fragrance.name}
         </h3>
+        {/* Year - subtle context */}
+        {fragrance.year && (
+          <p className="font-modern text-arena-muted text-xs mt-1.5">
+            {fragrance.year}
+          </p>
+        )}
         
         {/* Click hint */}
         <div className={`

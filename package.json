@@ -7,13 +7,17 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "seed": "npx ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/seedFirestore.ts"
+    "seed": "npx ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/seedFirestore.ts",
+    "seed:csv": "npx ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/seedFromCsv.ts",
+    "fix:images": "npx ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/fixImageUrls.ts"
   },
   "dependencies": {
     "cheerio": "^1.2.0",
+    "csv-parse": "^6.1.0",
     "firebase": "^11.3.1",
     "firebase-admin": "^13.0.2",
     "next": "^15.1.0",
+    "puppeteer": "^24.36.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "uuid": "^11.0.5"

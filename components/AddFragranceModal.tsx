@@ -8,12 +8,6 @@ interface AddFragranceModalProps {
   onClose: () => void;
 }
 
-interface ArenaSelection {
-  masculine: boolean;
-  feminine: boolean;
-  unisex: boolean;
-}
-
 type Status = "idle" | "loading" | "success" | "error";
 
 export default function AddFragranceModal({
@@ -21,11 +15,6 @@ export default function AddFragranceModal({
   onClose,
 }: AddFragranceModalProps) {
   const [url, setUrl] = useState("");
-  const [arenas, setArenas] = useState<ArenaSelection>({
-    masculine: false,
-    feminine: false,
-    unisex: false,
-  });
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
   const [addedFragrance, setAddedFragrance] = useState<FragrancePublic | null>(
@@ -44,7 +33,6 @@ export default function AddFragranceModal({
   useEffect(() => {
     if (!isOpen) {
       setUrl("");
-      setArenas({ masculine: false, feminine: false, unisex: false });
       setStatus("idle");
       setError("");
       setAddedFragrance(null);
@@ -71,12 +59,6 @@ export default function AddFragranceModal({
       return;
     }
 
-    // Require at least one arena selection
-    if (!arenas.masculine && !arenas.feminine && !arenas.unisex) {
-      setError("Please select at least one arena");
-      return;
-    }
-
     setStatus("loading");
     setError("");
 
@@ -84,7 +66,7 @@ export default function AddFragranceModal({
       const response = await fetch("/api/fragrance/add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: url.trim(), arenas }),
+        body: JSON.stringify({ url: url.trim() }),
       });
 
       const data = await response.json();
@@ -103,13 +85,8 @@ export default function AddFragranceModal({
     }
   };
 
-  const handleArenaToggle = (arena: keyof ArenaSelection) => {
-    setArenas((prev) => ({ ...prev, [arena]: !prev[arena] }));
-  };
-
   const handleAddAnother = () => {
     setUrl("");
-    setArenas({ masculine: false, feminine: false, unisex: false });
     setStatus("idle");
     setError("");
     setAddedFragrance(null);
@@ -208,7 +185,7 @@ export default function AddFragranceModal({
           ) : (
             <form onSubmit={handleSubmit}>
               <p className="font-modern text-arena-light text-sm mb-5">
-                Paste a Fragrantica URL to add a fragrance to the arena.
+                Paste a Fragrantica URL to add a fragrance. Gender and arenas will be detected automatically.
               </p>
 
               <div className="mb-5">
@@ -229,32 +206,6 @@ export default function AddFragranceModal({
                     disabled:opacity-50 disabled:cursor-not-allowed
                     transition-all duration-200"
                 />
-              </div>
-
-              {/* Arena selection */}
-              <div className="mb-5">
-                <p className="font-modern text-arena-light text-sm mb-3">Select arenas:</p>
-                <div className="flex flex-wrap gap-2">
-                  {(["masculine", "feminine", "unisex"] as const).map(
-                    (arena) => (
-                      <button
-                        key={arena}
-                        type="button"
-                        onClick={() => handleArenaToggle(arena)}
-                        disabled={status === "loading"}
-                        className={`px-4 py-2 font-modern text-sm rounded-full border transition-all duration-200
-                          ${
-                            arenas[arena]
-                              ? "bg-arena-accent border-arena-accent text-white shadow-glow"
-                              : "bg-arena-dark border-arena-border text-arena-light hover:border-arena-light hover:text-arena-white"
-                          }
-                          disabled:opacity-50 disabled:cursor-not-allowed`}
-                      >
-                        {arena.charAt(0).toUpperCase() + arena.slice(1)}
-                      </button>
-                    )
-                  )}
-                </div>
               </div>
 
               {error && (
@@ -291,12 +242,18 @@ export default function AddFragranceModal({
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       />
                     </svg>
-                    Adding...
+                    Adding fragrance...
                   </>
                 ) : (
                   "Add Fragrance"
                 )}
               </button>
+
+              {status === "loading" && (
+                <p className="font-modern text-arena-muted text-xs text-center mt-3">
+                  Fetching fragrance details from Fragrantica...
+                </p>
+              )}
             </form>
           )}
         </div>
