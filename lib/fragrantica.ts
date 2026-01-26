@@ -18,6 +18,7 @@ export interface FragranticaMetadata {
     top?: string[];
     middle?: string[];
     base?: string[];
+    all?: string[];
   };
   gender?: "masculine" | "feminine" | "unisex";
 }
@@ -181,6 +182,7 @@ export async function scrapeFragranticaMetadata(
           top?: string[];
           middle?: string[];
           base?: string[];
+          all?: string[];
         };
         gender?: "masculine" | "feminine" | "unisex";
       } = {};
