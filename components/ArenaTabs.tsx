@@ -13,24 +13,26 @@ export default function ArenaTabs({
   basePath = "/rankings",
 }: ArenaTabsProps) {
   return (
-    <div className="flex items-center justify-center gap-2 mb-8 flex-wrap">
-      {ARENAS.map((arena) => (
-        <Link
-          key={arena}
-          href={`${basePath}?arena=${arena}`}
-          className={`
-            px-4 py-2 text-sm font-medium uppercase tracking-wider
-            transition-all duration-200 border
-            ${
-              currentArena === arena
-                ? "bg-arena-accent border-arena-accent text-white"
-                : "bg-transparent border-arena-border text-arena-light hover:border-arena-light hover:text-arena-white"
-            }
-          `}
-        >
-          {ARENA_LABELS[arena]}
-        </Link>
-      ))}
+    <div className="flex justify-center mb-10 px-4">
+      <div className="inline-flex items-center gap-1 p-1 bg-arena-dark/80 backdrop-blur-sm border border-arena-border rounded-full flex-wrap justify-center">
+        {ARENAS.map((arena) => (
+          <Link
+            key={arena}
+            href={`${basePath}?arena=${arena}`}
+            className={`
+              relative px-4 py-2 font-modern text-xs sm:text-sm font-medium uppercase tracking-wider
+              transition-all duration-200 rounded-full
+              ${
+                currentArena === arena
+                  ? "bg-arena-accent text-white shadow-glow"
+                  : "text-arena-light hover:text-arena-white hover:bg-arena-gray/50"
+              }
+            `}
+          >
+            {ARENA_LABELS[arena]}
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }

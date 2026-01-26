@@ -31,26 +31,26 @@ async function getFragranceBySlug(slug: string): Promise<Fragrance | null> {
   }
 }
 
-async function getFragranceRank(
-  fragranceId: string,
-  arena: Arena,
-  currentElo: number
-): Promise<number> {
+async function getArenaRankings(arena: Arena): Promise<Map<string, number>> {
   try {
     const db = getAdminFirestore();
 
-    // Count how many fragrances have higher Elo
+    // Fetch all fragrances in this arena, ordered by Elo descending
     const snapshot = await db
       .collection("fragrances")
       .where(`arenas.${arena}`, "==", true)
-      .where(`elo.${arena}`, ">", currentElo)
-      .count()
+      .orderBy(`elo.${arena}`, "desc")
       .get();
 
-    return snapshot.data().count + 1;
+    const rankMap = new Map<string, number>();
+    snapshot.docs.forEach((doc, index) => {
+      rankMap.set(doc.id, index + 1);
+    });
+
+    return rankMap;
   } catch (error) {
-    console.error("Error getting rank:", error);
-    return 0;
+    console.error("Error getting arena rankings:", error);
+    return new Map();
   }
 }
 
@@ -87,24 +87,29 @@ export default async function FragranceDetailPage({ params }: PageProps) {
 
   // Get ranks for each arena the fragrance participates in
   const activeArenas = ARENAS.filter((arena) => fragrance.arenas[arena]);
-  const arenaStats = await Promise.all(
-    activeArenas.map(async (arena) => {
-      const elo = fragrance.elo[arena] || 1500;
-      const battles = fragrance.stats?.battles?.[arena] || 0;
-      const wins = fragrance.stats?.wins?.[arena] || 0;
-      const rank = await getFragranceRank(fragrance.id, arena, elo);
-
-      return {
-        arena,
-        label: ARENA_LABELS[arena],
-        elo,
-        rank,
-        battles,
-        wins,
-        winRate: battles > 0 ? Math.round((wins / battles) * 100) : 0,
-      };
-    })
+  
+  // Fetch rankings for all active arenas in parallel
+  const arenaRankings = await Promise.all(
+    activeArenas.map((arena) => getArenaRankings(arena))
   );
+  
+  const arenaStats = activeArenas.map((arena, index) => {
+    const elo = fragrance.elo[arena] || 1500;
+    const battles = fragrance.stats?.battles?.[arena] || 0;
+    const wins = fragrance.stats?.wins?.[arena] || 0;
+    const rankMap = arenaRankings[index];
+    const rank = rankMap.get(fragrance.id) || 0;
+
+    return {
+      arena,
+      label: ARENA_LABELS[arena],
+      elo,
+      rank,
+      battles,
+      wins,
+      winRate: battles > 0 ? Math.round((wins / battles) * 100) : 0,
+    };
+  });
 
   return (
     <div className="min-h-screen">
@@ -112,17 +117,24 @@ export default async function FragranceDetailPage({ params }: PageProps) {
       <div className="max-w-4xl mx-auto px-4 py-6">
         <Link
           href="/rankings"
-          className="text-arena-light hover:text-arena-white transition-colors text-sm"
+          className="inline-flex items-center gap-2 font-modern text-arena-light hover:text-arena-white transition-colors text-sm group"
         >
-          ← Back to Rankings
+          <svg className="w-4 h-4 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
+          </svg>
+          Back to Rankings
         </Link>
       </div>
 
       {/* Hero */}
-      <section className="max-w-4xl mx-auto px-4 pb-12">
-        <div className="flex flex-col md:flex-row items-center gap-8">
+      <section className="relative max-w-4xl mx-auto px-4 pb-12">
+        {/* Background glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] h-[300px] bg-arena-accent/5 rounded-full blur-[80px] pointer-events-none" />
+        
+        <div className="relative flex flex-col md:flex-row items-center gap-8 md:gap-12">
           {/* Image */}
-          <div className="relative w-64 h-80 bg-arena-gray rounded-lg overflow-hidden flex-shrink-0">
+          <div className="relative w-56 h-72 md:w-64 md:h-80 glass rounded-xl overflow-hidden flex-shrink-0 border border-arena-border">
+            <div className="absolute inset-0 bg-gradient-to-t from-arena-gray to-transparent opacity-50 pointer-events-none z-10" />
             <Image
               src={fragrance.imageUrl}
               alt={`${fragrance.brand} ${fragrance.name}`}
@@ -135,17 +147,19 @@ export default async function FragranceDetailPage({ params }: PageProps) {
 
           {/* Info */}
           <div className="text-center md:text-left">
-            <p className="text-arena-light text-sm uppercase tracking-wider mb-2">
+            {/* Brand - modern clean */}
+            <p className="font-modern text-arena-light text-sm uppercase tracking-[0.25em] mb-3">
               {fragrance.brand}
             </p>
-            <h1 className="font-display text-4xl md:text-5xl text-arena-white tracking-wider mb-6">
-              {fragrance.name.toUpperCase()}
+            {/* Name - elegant serif, large */}
+            <h1 className="font-elegant text-4xl md:text-5xl lg:text-6xl text-arena-white leading-tight mb-6">
+              {fragrance.name}
             </h1>
             <div className="flex flex-wrap gap-2 justify-center md:justify-start">
               {activeArenas.map((arena) => (
                 <span
                   key={arena}
-                  className="px-3 py-1 text-xs uppercase tracking-wider bg-arena-gray border border-arena-border text-arena-light"
+                  className="px-3 py-1.5 font-modern text-xs uppercase tracking-wider bg-arena-gray/80 border border-arena-border rounded-full text-arena-light"
                 >
                   {ARENA_LABELS[arena]}
                 </span>
@@ -157,43 +171,47 @@ export default async function FragranceDetailPage({ params }: PageProps) {
 
       {/* Stats Grid */}
       <section className="max-w-4xl mx-auto px-4 pb-16">
-        <h2 className="font-display text-2xl text-arena-white tracking-wider mb-6">
-          ARENA STATS
+        <h2 className="mb-6 flex items-center gap-3">
+          <span className="text-xl">📊</span>
+          <span className="font-display text-2xl text-arena-white tracking-wider">ARENA</span>
+          <span className="font-elegant italic text-xl text-arena-light">Stats</span>
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {arenaStats.map((stat) => (
             <div
               key={stat.arena}
-              className="bg-arena-gray border border-arena-border rounded-lg p-6"
+              className="glass rounded-xl border border-arena-border p-5 hover:border-arena-border/80 transition-colors"
             >
-              <p className="text-arena-light text-xs uppercase tracking-wider mb-4">
+              <p className="font-modern text-arena-light text-xs uppercase tracking-wider mb-5 font-medium">
                 {stat.label}
               </p>
 
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div className="flex justify-between items-baseline">
-                  <span className="text-arena-muted text-sm">Rank</span>
-                  <span className="font-display text-3xl text-arena-white">
+                  <span className="font-modern text-arena-muted text-sm">Rank</span>
+                  <span className="font-expressive text-4xl font-bold text-arena-white">
                     #{stat.rank}
                   </span>
                 </div>
 
+                <div className="h-px bg-arena-border/50" />
+
                 <div className="flex justify-between items-baseline">
-                  <span className="text-arena-muted text-sm">Win Rate</span>
-                  <span className="text-arena-white font-medium">
+                  <span className="font-modern text-arena-muted text-sm">Win Rate</span>
+                  <span className={`font-expressive font-semibold ${stat.winRate >= 50 ? "text-green-400" : "text-arena-white"}`}>
                     {stat.battles > 0 ? `${stat.winRate}%` : "—"}
                   </span>
                 </div>
 
                 <div className="flex justify-between items-baseline">
-                  <span className="text-arena-muted text-sm">Battles</span>
-                  <span className="text-arena-light">{stat.battles}</span>
+                  <span className="font-modern text-arena-muted text-sm">Battles</span>
+                  <span className="font-modern text-arena-light">{stat.battles}</span>
                 </div>
 
                 <div className="flex justify-between items-baseline">
-                  <span className="text-arena-muted text-sm">Wins</span>
-                  <span className="text-arena-light">{stat.wins}</span>
+                  <span className="font-modern text-arena-muted text-sm">Wins</span>
+                  <span className="font-modern text-arena-light">{stat.wins}</span>
                 </div>
               </div>
             </div>
@@ -202,14 +220,16 @@ export default async function FragranceDetailPage({ params }: PageProps) {
       </section>
 
       {/* CTA */}
-      <section className="max-w-4xl mx-auto px-4 pb-16 text-center">
-        <p className="text-arena-muted mb-4">Think this ranking is wrong?</p>
-        <Link
-          href="/"
-          className="inline-block px-8 py-3 bg-arena-accent text-white font-semibold text-sm uppercase tracking-wider hover:bg-red-600 transition-colors"
-        >
-          Vote Now
-        </Link>
+      <section className="max-w-4xl mx-auto px-4 pb-20 text-center">
+        <div className="glass rounded-xl border border-arena-border p-8">
+          <p className="font-editorial italic text-arena-light text-lg mb-5">Think this ranking is wrong?</p>
+          <Link
+            href="/"
+            className="inline-block px-8 py-3 bg-arena-accent text-white font-modern font-semibold text-sm uppercase tracking-wider rounded hover:bg-red-600 transition-all duration-200 shadow-glow hover:shadow-glow-lg"
+          >
+            Vote Now
+          </Link>
+        </div>
       </section>
     </div>
   );

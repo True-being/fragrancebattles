@@ -73,20 +73,37 @@ export default async function RankingsPage({ searchParams }: PageProps) {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <section className="py-12 text-center">
-        <h1 className="font-display text-4xl md:text-6xl text-arena-white tracking-wider mb-4">
-          {arenaLabel.toUpperCase()} RANKINGS
-        </h1>
-        <p className="text-arena-light text-lg">
-          The current standings based on head-to-head battles
-        </p>
+      <section className="relative py-14 md:py-16 text-center overflow-hidden">
+        {/* Subtle background glow */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-arena-gold/5 rounded-full blur-[80px]" />
+        </div>
+        
+        <div className="relative z-10">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <span className="text-3xl">🏆</span>
+          </div>
+          {/* Expressive headline */}
+          <h1 className="mb-4">
+            <span className="font-display text-4xl md:text-6xl text-arena-white tracking-wider">
+              {arenaLabel.toUpperCase()}
+            </span>
+            <br />
+            <span className="font-elegant italic text-3xl md:text-5xl text-arena-light">
+              Rankings
+            </span>
+          </h1>
+          <p className="font-editorial italic text-arena-light text-base md:text-lg">
+            The current standings based on head-to-head battles
+          </p>
+        </div>
       </section>
 
       {/* Arena Tabs */}
       <ArenaTabs currentArena={arena} />
 
       {/* Rankings Table */}
-      <section className="max-w-4xl mx-auto px-4 pb-16">
+      <section className="max-w-3xl mx-auto px-4 pb-20">
         <RankingsTable fragrances={rankings} />
       </section>
     </div>

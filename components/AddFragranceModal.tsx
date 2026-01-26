@@ -127,28 +127,30 @@ export default function AddFragranceModal({
     >
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/80 backdrop-blur-md"
         onClick={onClose}
         aria-hidden="true"
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-md bg-arena-gray border border-arena-border rounded-lg shadow-xl">
+      <div className="relative w-full max-w-md glass border border-arena-border rounded-xl shadow-2xl animate-scale-in">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-arena-border">
+        <div className="flex items-center justify-between p-5 border-b border-arena-border/50">
           <h2
             id="modal-title"
-            className="font-display text-xl text-arena-white tracking-wide"
+            className="flex items-center gap-2"
           >
-            ADD FRAGRANCE
+            <span className="text-lg">➕</span>
+            <span className="font-display text-xl text-arena-white tracking-wider">ADD</span>
+            <span className="font-elegant italic text-lg text-arena-light">Fragrance</span>
           </h2>
           <button
             onClick={onClose}
-            className="text-arena-muted hover:text-arena-white transition-colors p-1"
+            className="text-arena-muted hover:text-arena-white transition-colors p-1 rounded hover:bg-arena-gray"
             aria-label="Close modal"
           >
             <svg
-              className="w-6 h-6"
+              className="w-5 h-5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -164,12 +166,12 @@ export default function AddFragranceModal({
         </div>
 
         {/* Content */}
-        <div className="p-4">
+        <div className="p-5">
           {status === "success" && addedFragrance ? (
-            <div className="text-center py-4">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center">
+            <div className="text-center py-6">
+              <div className="w-16 h-16 mx-auto mb-5 rounded-full bg-green-500/20 border border-green-500/30 flex items-center justify-center">
                 <svg
-                  className="w-8 h-8 text-green-500"
+                  className="w-8 h-8 text-green-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -182,20 +184,17 @@ export default function AddFragranceModal({
                   />
                 </svg>
               </div>
-              <h3 className="text-arena-white font-semibold mb-1">
+              <p className="font-modern text-arena-light text-xs uppercase tracking-[0.2em] mb-1">
                 {addedFragrance.brand}
-              </h3>
-              <p className="text-arena-light text-lg mb-4">
-                {addedFragrance.name}
               </p>
-              <p className="text-arena-muted text-sm mb-6">
-                Added to the arena
+              <h3 className="font-elegant text-2xl text-arena-white mb-5">
+                {addedFragrance.name}
+              </h3>
+              <p className="font-editorial italic text-arena-muted text-sm mb-6">
+                Added to the arena successfully
               </p>
               <div className="flex gap-3 justify-center">
-                <button
-                  onClick={handleAddAnother}
-                  className="arena-btn"
-                >
+                <button onClick={handleAddAnother} className="arena-btn">
                   Add Another
                 </button>
                 <button
@@ -208,11 +207,11 @@ export default function AddFragranceModal({
             </div>
           ) : (
             <form onSubmit={handleSubmit}>
-              <p className="text-arena-light text-sm mb-4">
+              <p className="font-modern text-arena-light text-sm mb-5">
                 Paste a Fragrantica URL to add a fragrance to the arena.
               </p>
 
-              <div className="mb-4">
+              <div className="mb-5">
                 <label htmlFor="fragrantica-url" className="sr-only">
                   Fragrantica URL
                 </label>
@@ -225,16 +224,16 @@ export default function AddFragranceModal({
                   placeholder="https://www.fragrantica.com/perfume/..."
                   disabled={status === "loading"}
                   className="w-full px-4 py-3 bg-arena-dark border border-arena-border rounded-lg
-                    text-arena-white placeholder-arena-muted
-                    focus:outline-none focus:border-arena-light
+                    font-modern text-arena-white placeholder-arena-muted text-sm
+                    focus:outline-none focus:border-arena-light focus:ring-1 focus:ring-arena-light/20
                     disabled:opacity-50 disabled:cursor-not-allowed
-                    transition-colors"
+                    transition-all duration-200"
                 />
               </div>
 
               {/* Arena selection */}
-              <div className="mb-4">
-                <p className="text-arena-light text-sm mb-2">Arenas:</p>
+              <div className="mb-5">
+                <p className="font-modern text-arena-light text-sm mb-3">Select arenas:</p>
                 <div className="flex flex-wrap gap-2">
                   {(["masculine", "feminine", "unisex"] as const).map(
                     (arena) => (
@@ -243,11 +242,11 @@ export default function AddFragranceModal({
                         type="button"
                         onClick={() => handleArenaToggle(arena)}
                         disabled={status === "loading"}
-                        className={`px-3 py-1.5 text-sm rounded-md border transition-colors
+                        className={`px-4 py-2 font-modern text-sm rounded-full border transition-all duration-200
                           ${
                             arenas[arena]
-                              ? "bg-arena-accent border-arena-accent text-white"
-                              : "bg-arena-dark border-arena-border text-arena-light hover:border-arena-light"
+                              ? "bg-arena-accent border-arena-accent text-white shadow-glow"
+                              : "bg-arena-dark border-arena-border text-arena-light hover:border-arena-light hover:text-arena-white"
                           }
                           disabled:opacity-50 disabled:cursor-not-allowed`}
                       >
@@ -259,9 +258,11 @@ export default function AddFragranceModal({
               </div>
 
               {error && (
-                <p className="text-red-400 text-sm mb-4" role="alert">
-                  {error}
-                </p>
+                <div className="mb-5 px-4 py-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+                  <p className="font-modern text-red-400 text-sm" role="alert">
+                    {error}
+                  </p>
+                </div>
               )}
 
               <button
@@ -301,14 +302,14 @@ export default function AddFragranceModal({
         </div>
 
         {/* Footer hint */}
-        <div className="px-4 pb-4">
-          <p className="text-arena-muted text-xs text-center">
+        <div className="px-5 pb-5">
+          <p className="font-modern text-arena-muted text-xs text-center">
             Find fragrances at{" "}
             <a
               href="https://www.fragrantica.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-arena-light hover:text-arena-white underline"
+              className="text-arena-light hover:text-arena-accent underline transition-colors"
             >
               fragrantica.com
             </a>

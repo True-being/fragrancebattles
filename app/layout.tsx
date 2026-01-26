@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import "./globals.css";
 import NavBar from "@/components/NavBar";
 
@@ -24,26 +25,43 @@ export default function RootLayout({
       <body className="min-h-screen bg-arena-black">
         <NavBar />
         <main className="pt-16">{children}</main>
-        <footer className="border-t border-arena-border py-8 mt-16">
+        <footer className="border-t border-arena-border/50 py-10 mt-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <p className="text-arena-muted text-sm">
-                © {new Date().getFullYear()} Fragrance Arena. Taste is the argument.
-              </p>
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+              <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
+                {/* Logo with mixed fonts */}
+                <div className="flex items-baseline gap-1">
+                  <span className="font-display text-lg text-arena-white/80 tracking-wide">
+                    FRAGRANCE
+                  </span>
+                  <span className="font-elegant italic text-base text-arena-accent/80">
+                    Arena
+                  </span>
+                </div>
+                <span className="hidden sm:block text-arena-border">·</span>
+                <p className="font-editorial italic text-arena-muted text-sm">
+                  Taste is the argument.
+                </p>
+              </div>
               <div className="flex items-center gap-6">
-                <a
+                <Link
                   href="/about"
-                  className="text-sm text-arena-muted hover:text-arena-light transition-colors"
+                  className="font-modern text-sm text-arena-muted hover:text-arena-light transition-colors"
                 >
                   About
-                </a>
-                <a
+                </Link>
+                <Link
                   href="/privacy"
-                  className="text-sm text-arena-muted hover:text-arena-light transition-colors"
+                  className="font-modern text-sm text-arena-muted hover:text-arena-light transition-colors"
                 >
                   Privacy
-                </a>
+                </Link>
               </div>
+            </div>
+            <div className="mt-6 pt-6 border-t border-arena-border/30 text-center">
+              <p className="font-modern text-arena-muted/60 text-xs">
+                © {new Date().getFullYear()} Fragrance Arena
+              </p>
             </div>
           </div>
         </footer>
