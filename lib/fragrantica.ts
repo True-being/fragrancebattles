@@ -146,9 +146,9 @@ export async function scrapeFragranticaMetadata(
     
     console.log("Connecting to Browserless...");
     
-    // Connect to Browserless.io remote browser
+    // Connect to Browserless.io remote browser with stealth mode
     browser = await puppeteer.default.connect({
-      browserWSEndpoint: `wss://chrome.browserless.io?token=${browserlessKey}`,
+      browserWSEndpoint: `wss://chrome.browserless.io?token=${browserlessKey}&stealth=true&blockAds=true`,
     });
 
     console.log("Browser launched, creating page...");
@@ -164,12 +164,23 @@ export async function scrapeFragranticaMetadata(
     // Navigate to the page with timeout
     await page.goto(url, {
       waitUntil: "networkidle2",
-      timeout: 30000,
+      timeout: 60000,
     });
 
+    // Check if we hit Cloudflare challenge
+    const title = await page.title();
+    console.log(`Page title: ${title}`);
+    
+    if (title.includes("Just a moment") || title.includes("Cloudflare")) {
+      // Wait for Cloudflare challenge to resolve
+      console.log("Cloudflare challenge detected, waiting...");
+      await new Promise(resolve => setTimeout(resolve, 8000));
+      await page.waitForNavigation({ waitUntil: "networkidle2", timeout: 30000 }).catch(() => {});
+    }
+
     // Wait for notes to load (they're dynamically rendered)
-    await page.waitForSelector('a[href*="/notes/"]', { timeout: 10000 }).catch(() => {
-      console.log("No notes selector found, continuing anyway...");
+    await page.waitForSelector('a[href*="/notes/"]', { timeout: 15000 }).catch(() => {
+      console.log("No notes selector found after waiting, continuing anyway...");
     });
 
     console.log("Page loaded, extracting data...");
