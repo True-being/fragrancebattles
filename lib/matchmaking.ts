@@ -76,7 +76,11 @@ async function addRecentPair(
 }
 
 /**
- * Fetch a random pool of fragrances for an arena (cached)
+ * Fetch a random pool of fragrances for an arena using randomOrder field
+ * Uses random start point with wrap-around for sampling across entire collection
+ * 
+ * Each cache expiration picks a NEW random slice of the collection.
+ * Within a cache window (1 min), battles come from that slice for efficiency.
  */
 async function fetchFragrancePool(
   arena: Arena,
@@ -91,25 +95,54 @@ async function fetchFragrancePool(
     return shuffled.slice(0, limit);
   }
 
+  // Cache expired or doesn't exist - pick a NEW random start point
+  const randomStart = Math.random();
+  
   const db = getAdminFirestore();
   const fragrancesRef = db.collection("fragrances");
+  const targetSize = 200; // Pool size to cache
 
-  // Query fragrances in this arena
+  // Query starting from random point in randomOrder
   const snapshot = await fragrancesRef
     .where(`arenas.${arena}`, "==", true)
-    .limit(200) // Fetch larger pool for variety, cache it
+    .orderBy("randomOrder")
+    .startAt(randomStart)
+    .limit(targetSize)
     .get();
 
-  if (snapshot.empty) {
-    return [];
-  }
-
-  const fragrances: Fragrance[] = snapshot.docs.map((doc) => ({
+  let fragrances: Fragrance[] = snapshot.docs.map((doc) => ({
     id: doc.id,
     ...doc.data(),
   })) as Fragrance[];
 
-  // Cache the pool
+  // Wrap around if we didn't get enough (hit end of collection)
+  if (fragrances.length < targetSize) {
+    const remaining = targetSize - fragrances.length;
+    const wrapSnapshot = await fragrancesRef
+      .where(`arenas.${arena}`, "==", true)
+      .orderBy("randomOrder")
+      .limit(remaining)
+      .get();
+
+    const wrapFragrances: Fragrance[] = wrapSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Fragrance[];
+
+    // Dedupe in case of overlap
+    const existingIds = new Set(fragrances.map((f) => f.id));
+    for (const f of wrapFragrances) {
+      if (!existingIds.has(f.id)) {
+        fragrances.push(f);
+      }
+    }
+  }
+
+  if (fragrances.length === 0) {
+    return [];
+  }
+
+  // Cache the pool - when this expires, we'll pick a new random slice
   poolCache.set(cacheKey, {
     fragrances,
     expires: Date.now() + CACHE_TTL_MS,

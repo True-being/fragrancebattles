@@ -147,6 +147,8 @@ export async function POST(
       },
       // Store fragranticaId for "Learn more" link on detail page
       fragranticaId: data.id,
+      // Random order for efficient random sampling in matchmaking
+      randomOrder: Math.random(),
       // Scraped metadata (may be undefined if scraping failed)
       ...(metadata.year && { year: metadata.year }),
       ...(metadata.concentration && { concentration: metadata.concentration }),

@@ -46,6 +46,8 @@ export interface Fragrance {
   stats: ArenaStats;
   createdAt: Timestamp;
   updatedAt: Timestamp;
+  // Random order field for efficient random sampling
+  randomOrder: number;
   // Optional metadata
   year?: number;
   concentration?: string;

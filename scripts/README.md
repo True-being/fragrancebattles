@@ -7,6 +7,7 @@
 npm run seed                              # 1. Seed fragrances
 npx tsx scripts/populateFragranceMetadata.ts  # 2. Add curated metadata
 npx tsx scripts/backfillMetadata.ts       # 3. Scrape notes from Fragrantica
+npx tsx scripts/addRandomOrder.ts         # 4. Add randomOrder for matchmaking
 
 # After adding fragrances via website:
 npx tsx scripts/backfillMetadata.ts       # Scrape notes for new fragrances
@@ -90,6 +91,7 @@ npx tsx scripts/backfillMetadata.ts
 | `backfillMetadata.ts` | Scrape notes from Fragrantica | After any of the above, or after adding via website |
 | `seedFromCsv.ts` | Import from CSV file | Bulk import |
 | `scrapePulse.ts` | Scrape trending fragrances from Fragrantica Pulse | Add trending fragrances |
+| `addRandomOrder.ts` | Add randomOrder field for matchmaking | After bulk imports (migration) |
 
 ---
 

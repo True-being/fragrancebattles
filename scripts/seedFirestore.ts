@@ -90,6 +90,8 @@ async function seedFirestore() {
           unisex: 0,
         },
       },
+      // Random order for efficient random sampling in matchmaking
+      randomOrder: Math.random(),
       // Flag for backfill script to scrape metadata from Fragrantica
       needsBackfill: true,
       createdAt: now,

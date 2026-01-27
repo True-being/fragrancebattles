@@ -124,6 +124,8 @@ async function seedFromCsv() {
           battles: { overall: 0, masculine: 0, feminine: 0, unisex: 0 },
           wins: { overall: 0, masculine: 0, feminine: 0, unisex: 0 },
         },
+        // Random order for efficient random sampling in matchmaking
+        randomOrder: Math.random(),
         createdAt: now,
         updatedAt: now,
       };

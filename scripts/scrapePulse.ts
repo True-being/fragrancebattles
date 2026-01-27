@@ -57,14 +57,16 @@ async function launchBrowser(): Promise<Browser> {
   
   console.log('Launching browser...');
   
+  // Use 'new' headless mode which is harder to detect
   return puppeteer.default.launch({
-    headless: true,
+    headless: 'new',
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
       '--disable-dev-shm-usage',
       '--disable-gpu',
       '--window-size=1920,1080',
+      '--disable-blink-features=AutomationControlled',
     ],
   });
 }
@@ -75,6 +77,15 @@ async function launchBrowser(): Promise<Browser> {
 async function setupPage(browser: Browser): Promise<Page> {
   const page = await browser.newPage();
   
+  // Remove webdriver detection
+  await page.evaluateOnNewDocument(() => {
+    Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+    // @ts-ignore
+    window.chrome = { runtime: {} };
+    Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5] });
+    Object.defineProperty(navigator, 'languages', { get: () => ['en-US', 'en'] });
+  });
+  
   await page.setUserAgent(
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
   );
@@ -82,6 +93,42 @@ async function setupPage(browser: Browser): Promise<Page> {
   await page.setViewport({ width: 1920, height: 1080 });
   
   return page;
+}
+
+/**
+ * Scroll to bottom of page to load all lazy-loaded content
+ */
+async function scrollToLoadAll(page: Page, maxScrolls = 50): Promise<void> {
+  let previousHeight = 0;
+  let scrollCount = 0;
+  let noChangeCount = 0;
+  
+  while (scrollCount < maxScrolls && noChangeCount < 3) {
+    const currentHeight = await page.evaluate(() => document.body.scrollHeight);
+    
+    if (currentHeight === previousHeight) {
+      noChangeCount++;
+    } else {
+      noChangeCount = 0;
+    }
+    
+    previousHeight = currentHeight;
+    
+    // Scroll to bottom
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    
+    // Wait for new content to load
+    await sleep(1000);
+    scrollCount++;
+    
+    // Log progress every 10 scrolls
+    if (scrollCount % 10 === 0) {
+      const linkCount = await page.evaluate(() => 
+        document.querySelectorAll('a[href*="/perfume/"]').length
+      );
+      console.log(`  Scrolled ${scrollCount}x, found ${linkCount} links so far...`);
+    }
+  }
 }
 
 /**
@@ -100,7 +147,12 @@ async function scrapePulsePage(page: Page): Promise<ScrapedFragrance[]> {
     console.log('Warning: Fragrance links selector timeout, continuing anyway...');
   });
   
-  console.log('Page loaded, extracting fragrance links...');
+  console.log('Page loaded, scrolling to load all content...');
+  
+  // Scroll to load all lazy-loaded content
+  await scrollToLoadAll(page);
+  
+  console.log('Extracting fragrance links...');
   
   // Extract all fragrance URLs from the page
   const links = await page.evaluate(() => {
@@ -147,13 +199,43 @@ async function scrapePulsePage(page: Page): Promise<ScrapedFragrance[]> {
 }
 
 /**
+ * Wait for Cloudflare challenge to resolve
+ */
+async function waitForCloudflare(page: Page, timeout = 30000): Promise<boolean> {
+  const start = Date.now();
+  
+  while (Date.now() - start < timeout) {
+    const title = await page.title();
+    const isChallenge = title.toLowerCase().includes('just a moment') || 
+                        title.toLowerCase().includes('checking');
+    
+    if (!isChallenge) {
+      return true; // Passed the challenge
+    }
+    
+    await sleep(2000);
+  }
+  
+  return false; // Timeout
+}
+
+/**
  * Scrape full metadata from a fragrance page
  */
 async function scrapeFragrancePage(page: Page, url: string): Promise<FragranticaMetadata> {
-  await page.goto(url, {
+  const response = await page.goto(url, {
     waitUntil: 'networkidle2',
     timeout: 60000,
   });
+  
+  // Check for Cloudflare challenge
+  const pageTitle = await page.title();
+  if (pageTitle.toLowerCase().includes('just a moment') || response?.status() === 403) {
+    const passed = await waitForCloudflare(page, 30000);
+    if (!passed) {
+      throw new Error('Cloudflare challenge timeout');
+    }
+  }
   
   // Wait for notes to load
   await page.waitForSelector('a[href*="/notes/"]', { timeout: 10000 }).catch(() => {
@@ -280,23 +362,55 @@ async function scrapeFragrancePage(page: Page, url: string): Promise<Fragrantica
       result.gender = 'masculine';
     }
 
-    // Extract accords
+    // Extract accords - find "main accords" heading and extract from child divs
     const accords: string[] = [];
-    const accordElements = document.querySelectorAll('[class*="accord"]');
-    accordElements.forEach(el => {
-      const text = (el.textContent || '').trim().toLowerCase();
-      if (
-        text.length > 2 &&
-        text.length < 30 &&
-        !text.includes('(') &&
-        !text.includes('%') &&
-        !accords.includes(text)
-      ) {
-        accords.push(text);
+    
+    // Find the "main accords" heading (usually h6 or similar)
+    const headings = document.querySelectorAll('h4, h5, h6, .font-semibold');
+    let accordContainer: Element | null = null;
+    
+    headings.forEach(h => {
+      const text = (h.textContent || '').trim().toLowerCase();
+      if (text === 'main accords' || text === 'main accord') {
+        accordContainer = h.parentElement;
       }
     });
+    
+    if (accordContainer) {
+      // Find accord names in child divs with the rounded styling
+      const accordDivs = accordContainer.querySelectorAll('div.rounded-br-lg, div[class*="rounded"]');
+      accordDivs.forEach(div => {
+        const text = (div.textContent || '').trim().toLowerCase();
+        if (
+          text.length > 2 &&
+          text.length < 30 &&
+          !text.includes('main accord') &&
+          !accords.includes(text)
+        ) {
+          accords.push(text);
+        }
+      });
+    }
+    
+    // Fallback: try old selector
+    if (accords.length === 0) {
+      const accordElements = document.querySelectorAll('[class*="accord"]');
+      accordElements.forEach(el => {
+        const text = (el.textContent || '').trim().toLowerCase();
+        if (
+          text.length > 2 &&
+          text.length < 30 &&
+          !text.includes('(') &&
+          !text.includes('%') &&
+          !accords.includes(text)
+        ) {
+          accords.push(text);
+        }
+      });
+    }
+    
     if (accords.length > 0) {
-      result.accords = accords.slice(0, 6);
+      result.accords = accords.slice(0, 8);
     }
 
     // Extract notes pyramid
@@ -424,6 +538,8 @@ async function addFragrance(
       },
     },
     fragranticaId: fragrance.id,
+    // Random order for efficient random sampling in matchmaking
+    randomOrder: Math.random(),
     ...(metadata.year && { year: metadata.year }),
     ...(metadata.concentration && { concentration: metadata.concentration }),
     ...(metadata.perfumer && { perfumer: metadata.perfumer }),
@@ -501,8 +617,8 @@ async function processConcurrently<T, R>(
       const result = await processor(item, index);
       results[index] = result;
       
-      // Small delay between requests per worker
-      await sleep(1500);
+      // Random delay between requests to appear more human-like (2-4 seconds)
+      await sleep(2000 + Math.random() * 2000);
     }
   }
   
