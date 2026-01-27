@@ -622,6 +622,8 @@ async function main() {
 
       await doc.ref.update({
         ...metadata,
+        // Flag for backfill to scrape notes from Fragrantica
+        needsBackfill: true,
         updatedAt: Timestamp.now(),
       });
       console.log(`✅ ${key}`);

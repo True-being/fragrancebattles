@@ -28,6 +28,12 @@ function generatePlaceholderImage(brand: string, name: string): string {
   return `https://placehold.co/400x500/1a1a1a/666666?text=${text}`;
 }
 
+function extractFragranticaId(imageUrl: string): number | null {
+  // Extract ID from URLs like https://fimgs.net/mdimg/perfume/375x500.9828.jpg
+  const match = imageUrl.match(/\.(\d+)\.jpg$/);
+  return match ? parseInt(match[1], 10) : null;
+}
+
 async function seedFirestore() {
   console.log("🚀 Starting Firestore seeding...\n");
 
@@ -55,12 +61,14 @@ async function seedFirestore() {
   for (const fragrance of seedData) {
     const slug = generateSlug(fragrance.brand, fragrance.name);
     const docRef = fragrancesRef.doc();
+    const imageUrl = fragrance.imageUrl || generatePlaceholderImage(fragrance.brand, fragrance.name);
+    const fragranticaId = fragrance.imageUrl ? extractFragranticaId(fragrance.imageUrl) : null;
 
-    const doc = {
+    const doc: Record<string, unknown> = {
       name: fragrance.name,
       brand: fragrance.brand,
       slug,
-      imageUrl: fragrance.imageUrl || generatePlaceholderImage(fragrance.brand, fragrance.name),
+      imageUrl,
       arenas: fragrance.arenas,
       elo: {
         overall: DEFAULT_ELO,
@@ -82,9 +90,16 @@ async function seedFirestore() {
           unisex: 0,
         },
       },
+      // Flag for backfill script to scrape metadata from Fragrantica
+      needsBackfill: true,
       createdAt: now,
       updatedAt: now,
     };
+    
+    // Add fragranticaId if we could extract it from imageUrl
+    if (fragranticaId) {
+      doc.fragranticaId = fragranticaId;
+    }
 
     batch.set(docRef, doc);
     console.log(`  ✓ ${fragrance.brand} - ${fragrance.name} (${slug})`);

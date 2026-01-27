@@ -67,6 +67,9 @@ export async function GET(request: NextRequest) {
         slug: fragranceA.slug,
         imageUrl: fragranceA.imageUrl,
         year: fragranceA.year,
+        concentration: fragranceA.concentration,
+        accords: fragranceA.accords,
+        notes: fragranceA.notes,
       } as FragrancePublic,
       fragranceB: {
         id: fragranceB.id,
@@ -75,6 +78,9 @@ export async function GET(request: NextRequest) {
         slug: fragranceB.slug,
         imageUrl: fragranceB.imageUrl,
         year: fragranceB.year,
+        concentration: fragranceB.concentration,
+        accords: fragranceB.accords,
+        notes: fragranceB.notes,
       } as FragrancePublic,
     };
 

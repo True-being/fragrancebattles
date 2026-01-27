@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { FragrancePublic } from "@/types";
 
@@ -11,6 +12,20 @@ interface FragranceCardProps {
   isLoser?: boolean;
 }
 
+function getDisplayNotes(fragrance: FragrancePublic): string[] {
+  if (fragrance.notes?.top?.length) {
+    // Combine top 2 from each tier for a quick overview
+    const top = fragrance.notes.top?.slice(0, 2) || [];
+    const middle = fragrance.notes.middle?.slice(0, 2) || [];
+    const base = fragrance.notes.base?.slice(0, 2) || [];
+    return [...top, ...middle, ...base].slice(0, 5);
+  }
+  if (fragrance.notes?.all?.length) {
+    return fragrance.notes.all.slice(0, 5);
+  }
+  return [];
+}
+
 export default function FragranceCard({
   fragrance,
   onClick,
@@ -18,10 +33,18 @@ export default function FragranceCard({
   isWinner,
   isLoser,
 }: FragranceCardProps) {
+  const [showDetails, setShowDetails] = useState(false);
+  
+  const displayNotes = getDisplayNotes(fragrance);
+  const displayAccords = fragrance.accords?.slice(0, 3) || [];
+  const hasDetails = displayNotes.length > 0 || displayAccords.length > 0;
+
   return (
     <button
       onClick={onClick}
       disabled={disabled}
+      onMouseEnter={() => setShowDetails(true)}
+      onMouseLeave={() => setShowDetails(false)}
       className={`
         group relative flex flex-col items-center w-full max-w-xs
         glass border rounded-xl overflow-hidden
@@ -73,6 +96,54 @@ export default function FragranceCard({
             <div className="absolute top-4 left-1/2 -translate-x-1/2">
               <span className="text-4xl drop-shadow-lg">👑</span>
             </div>
+          </div>
+        )}
+
+        {/* Hover details overlay */}
+        {hasDetails && !isWinner && !isLoser && (
+          <div className={`
+            absolute inset-0 bg-arena-black/90 backdrop-blur-sm
+            flex flex-col justify-center p-4
+            transition-opacity duration-200
+            ${showDetails ? "opacity-100" : "opacity-0 pointer-events-none"}
+          `}>
+            {displayAccords.length > 0 && (
+              <div className="mb-3">
+                <p className="font-modern text-[10px] uppercase tracking-wider text-arena-muted mb-1.5">Accords</p>
+                <div className="flex flex-wrap gap-1">
+                  {displayAccords.map((accord) => (
+                    <span
+                      key={accord}
+                      className="px-2 py-0.5 font-modern text-[10px] capitalize bg-arena-accent/20 border border-arena-accent/30 rounded text-arena-accent"
+                    >
+                      {accord}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {displayNotes.length > 0 && (
+              <div>
+                <p className="font-modern text-[10px] uppercase tracking-wider text-arena-muted mb-1.5">Key Notes</p>
+                <div className="flex flex-wrap gap-1">
+                  {displayNotes.map((note) => (
+                    <span
+                      key={note}
+                      className="px-2 py-0.5 font-modern text-[10px] bg-arena-gray/80 border border-arena-border rounded text-arena-light"
+                    >
+                      {note}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {fragrance.concentration && (
+              <p className="font-modern text-[10px] uppercase tracking-wider text-arena-muted mt-3">
+                {fragrance.concentration}
+              </p>
+            )}
           </div>
         )}
       </div>

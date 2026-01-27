@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { RankedFragrance } from "@/types";
@@ -23,6 +24,16 @@ function getPodiumClass(rank: number) {
 }
 
 export default function RankingsTable({ fragrances }: RankingsTableProps) {
+  const [search, setSearch] = useState("");
+
+  const filtered = search.trim()
+    ? fragrances.filter(
+        (f) =>
+          f.name.toLowerCase().includes(search.toLowerCase()) ||
+          f.brand.toLowerCase().includes(search.toLowerCase())
+      )
+    : fragrances;
+
   if (fragrances.length === 0) {
     return (
       <div className="text-center py-20">
@@ -36,8 +47,52 @@ export default function RankingsTable({ fragrances }: RankingsTableProps) {
   }
 
   return (
-    <div className="space-y-2">
-      {fragrances.map((fragrance) => {
+    <div className="space-y-4">
+      {/* Search */}
+      <div className="relative">
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search fragrances..."
+          className="w-full bg-arena-gray/50 border border-arena-border/50 rounded-lg px-4 py-3 pl-10
+            font-modern text-arena-white placeholder:text-arena-muted
+            focus:outline-none focus:border-arena-border focus:bg-arena-gray/70
+            transition-colors"
+        />
+        <svg
+          className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-arena-muted"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1.5}
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          />
+        </svg>
+        {search && (
+          <button
+            onClick={() => setSearch("")}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-arena-muted hover:text-arena-light transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        )}
+      </div>
+
+      {/* Results */}
+      {filtered.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="font-editorial italic text-arena-muted">No matches for "{search}"</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+      {filtered.map((fragrance) => {
         const rankBadge = getRankBadge(fragrance.rank);
         const podiumClass = getPodiumClass(fragrance.rank);
         const isTopThree = fragrance.rank <= 3;
@@ -132,6 +187,8 @@ export default function RankingsTable({ fragrances }: RankingsTableProps) {
           </Link>
         );
       })}
+        </div>
+      )}
     </div>
   );
 }

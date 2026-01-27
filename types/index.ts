@@ -118,6 +118,14 @@ export interface FragrancePublic {
   slug: string;
   imageUrl: string;
   year?: number;
+  concentration?: string;
+  accords?: string[];
+  notes?: {
+    top?: string[];
+    middle?: string[];
+    base?: string[];
+    all?: string[];
+  };
 }
 
 export interface VoteRequest {
