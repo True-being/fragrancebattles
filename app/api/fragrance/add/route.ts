@@ -8,6 +8,7 @@ import {
   scrapeFragranticaMetadata,
 } from "@/lib/fragrantica";
 import { DEFAULT_ELO, type FragrancePublic, type ArenaFlags } from "@/types";
+import { invalidateFragranceCache } from "@/app/api/rankings/search/route";
 
 interface AddFragranceRequest {
   url: string;
@@ -160,6 +161,9 @@ export async function POST(
     };
 
     await docRef.set(fragranceDoc);
+
+    // Invalidate fragrance cache after adding new fragrance
+    invalidateFragranceCache();
 
     const fragrance: FragrancePublic = {
       id: docRef.id,

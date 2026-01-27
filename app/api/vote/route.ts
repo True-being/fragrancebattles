@@ -3,6 +3,7 @@ import { getAdminFirestore } from "@/lib/firebase/admin";
 import { updateRatings, isUpset } from "@/lib/elo";
 import { VoteRequest, VoteResponse, Arena, Battle, Fragrance } from "@/types";
 import { Timestamp, FieldValue } from "firebase-admin/firestore";
+import { invalidateFragranceCache } from "@/app/api/rankings/search/route";
 
 export async function POST(request: NextRequest) {
   try {
@@ -131,6 +132,9 @@ export async function POST(request: NextRequest) {
         winnerName: winner.name,
       };
     });
+
+    // Invalidate fragrance cache after vote
+    invalidateFragranceCache();
 
     const response: VoteResponse = {
       success: true,

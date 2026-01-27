@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { FragrancePublic } from "@/types";
+import NoteChip from "@/components/NoteChip";
 
 interface FragranceCardProps {
   fragrance: FragrancePublic;
@@ -126,14 +127,9 @@ export default function FragranceCard({
             {displayNotes.length > 0 && (
               <div>
                 <p className="font-modern text-[10px] uppercase tracking-wider text-arena-muted mb-1.5">Key Notes</p>
-                <div className="flex flex-wrap gap-1">
+                <div className="flex flex-wrap gap-1.5">
                   {displayNotes.map((note) => (
-                    <span
-                      key={note}
-                      className="px-2 py-0.5 font-modern text-[10px] bg-arena-gray/80 border border-arena-border rounded text-arena-light"
-                    >
-                      {note}
-                    </span>
+                    <NoteChip key={note} note={note} />
                   ))}
                 </div>
               </div>

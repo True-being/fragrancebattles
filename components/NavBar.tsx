@@ -22,7 +22,7 @@ export default function NavBar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link href="/" className="flex items-center">
+            <Link href="/" className="flex items-center gap-3">
               <Image
                 src="/logo.png"
                 alt="Fragrance Battles"
@@ -31,6 +31,14 @@ export default function NavBar() {
                 className="h-10 w-10"
                 priority
               />
+              <div className="flex items-baseline gap-1">
+                <span className="font-display text-xl sm:text-2xl text-arena-white tracking-wider">
+                  FRAGRANCE
+                </span>
+                <span className="font-elegant italic text-lg sm:text-xl text-arena-accent">
+                  Battles
+                </span>
+              </div>
             </Link>
 
             {/* Navigation */}

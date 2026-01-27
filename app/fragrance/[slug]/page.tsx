@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAdminFirestore } from "@/lib/firebase/admin";
 import { Fragrance, Arena, ARENAS, ARENA_LABELS, getFragranticaUrl } from "@/types";
+import NoteChip from "@/components/NoteChip";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -227,12 +228,7 @@ export default async function FragranceDetailPage({ params }: PageProps) {
                       <p className="font-modern text-xs uppercase tracking-wider text-amber-400/80">Top</p>
                       <div className="flex flex-wrap gap-1.5">
                         {fragrance.notes.top.map((note) => (
-                          <span
-                            key={note}
-                            className="px-2 py-1 font-modern text-xs bg-amber-500/10 border border-amber-500/20 rounded text-amber-300/90"
-                          >
-                            {note}
-                          </span>
+                          <NoteChip key={note} note={note} variant="top" size="md" />
                         ))}
                       </div>
                     </div>
@@ -242,12 +238,7 @@ export default async function FragranceDetailPage({ params }: PageProps) {
                       <p className="font-modern text-xs uppercase tracking-wider text-rose-400/80">Heart</p>
                       <div className="flex flex-wrap gap-1.5">
                         {fragrance.notes.middle.map((note) => (
-                          <span
-                            key={note}
-                            className="px-2 py-1 font-modern text-xs bg-rose-500/10 border border-rose-500/20 rounded text-rose-300/90"
-                          >
-                            {note}
-                          </span>
+                          <NoteChip key={note} note={note} variant="heart" size="md" />
                         ))}
                       </div>
                     </div>
@@ -257,12 +248,7 @@ export default async function FragranceDetailPage({ params }: PageProps) {
                       <p className="font-modern text-xs uppercase tracking-wider text-emerald-400/80">Base</p>
                       <div className="flex flex-wrap gap-1.5">
                         {fragrance.notes.base.map((note) => (
-                          <span
-                            key={note}
-                            className="px-2 py-1 font-modern text-xs bg-emerald-500/10 border border-emerald-500/20 rounded text-emerald-300/90"
-                          >
-                            {note}
-                          </span>
+                          <NoteChip key={note} note={note} variant="base" size="md" />
                         ))}
                       </div>
                     </div>
@@ -277,12 +263,7 @@ export default async function FragranceDetailPage({ params }: PageProps) {
                 <span className="font-modern text-arena-muted text-sm">Notes</span>
                 <div className="flex flex-wrap gap-1.5">
                   {fragrance.notes.all.map((note) => (
-                    <span
-                      key={note}
-                      className="px-2 py-1 font-modern text-xs bg-arena-gray/50 border border-arena-border rounded text-arena-light"
-                    >
-                      {note}
-                    </span>
+                    <NoteChip key={note} note={note} size="md" />
                   ))}
                 </div>
               </div>
