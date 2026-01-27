@@ -153,6 +153,8 @@ export async function POST(
       ...(metadata.description && { description: metadata.description }),
       ...(metadata.accords && metadata.accords.length > 0 && { accords: metadata.accords }),
       ...(metadata.notes && { notes: metadata.notes }),
+      // Flag for backfill if notes weren't scraped (production skips scraping)
+      needsBackfill: !metadata.notes,
       createdAt: now,
       updatedAt: now,
     };

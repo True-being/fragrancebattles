@@ -25,7 +25,13 @@ async function backfillMetadata() {
   console.log('Fetching fragrances missing notes...\n');
   
   const fragrancesRef = db.collection('fragrances');
-  const snapshot = await fragrancesRef.get();
+  
+  // Query only fragrances that need backfill (have fragranticaId but needsBackfill=true)
+  // This avoids reading all 80k documents
+  const snapshot = await fragrancesRef
+    .where('needsBackfill', '==', true)
+    .limit(50) // Process in batches to avoid timeout
+    .get();
   
   const fragrancesToUpdate: Array<{
     id: string;
@@ -36,8 +42,7 @@ async function backfillMetadata() {
   
   snapshot.forEach(doc => {
     const data = doc.data();
-    // Only process fragrances that have a fragranticaId but no notes
-    if (data.fragranticaId && !data.notes) {
+    if (data.fragranticaId) {
       fragrancesToUpdate.push({
         id: doc.id,
         name: data.name,
@@ -47,7 +52,7 @@ async function backfillMetadata() {
     }
   });
   
-  console.log(`Found ${fragrancesToUpdate.length} fragrances missing notes\n`);
+  console.log(`Found ${fragrancesToUpdate.length} fragrances needing backfill (limited to 50 per run)\n`);
   
   if (fragrancesToUpdate.length === 0) {
     console.log('All fragrances have notes. Nothing to do!');
@@ -75,12 +80,15 @@ async function backfillMetadata() {
         const updateData: Record<string, unknown> = {};
         
         if (metadata.notes) updateData.notes = metadata.notes;
-        if (metadata.year && !metadata.year) updateData.year = metadata.year;
+        if (metadata.year) updateData.year = metadata.year;
         if (metadata.concentration) updateData.concentration = metadata.concentration;
         if (metadata.perfumer) updateData.perfumer = metadata.perfumer;
         if (metadata.description) updateData.description = metadata.description;
         if (metadata.gender) updateData.gender = metadata.gender;
         if (metadata.accords) updateData.accords = metadata.accords;
+        
+        // Clear the backfill flag
+        updateData.needsBackfill = false;
         
         await fragrancesRef.doc(frag.id).update(updateData);
         
