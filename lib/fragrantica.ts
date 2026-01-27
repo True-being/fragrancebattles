@@ -126,29 +126,35 @@ export function generateSlug(brand: string, name: string): string {
 
 /**
  * Scrape metadata from a Fragrantica page using Puppeteer
- * Uses Browserless.io for remote browser execution in production
+ * Only works locally - Fragrantica has Cloudflare protection that blocks cloud services
+ * In production, use the backfill script locally instead
  */
 export async function scrapeFragranticaMetadata(
   url: string
 ): Promise<FragranticaMetadata> {
   const metadata: FragranticaMetadata = {};
 
-  // Check for Browserless API key
-  const browserlessKey = process.env.BROWSERLESS_API_KEY;
-  if (!browserlessKey) {
-    console.warn("BROWSERLESS_API_KEY not set, skipping metadata scrape");
+  // Skip scraping in production - Cloudflare blocks cloud-based browsers
+  // Run scripts/backfillMetadata.ts locally instead
+  if (process.env.K_SERVICE || process.env.VERCEL || process.env.NODE_ENV === "production") {
+    console.log("Skipping metadata scrape in production (Cloudflare blocks cloud browsers)");
     return metadata;
   }
 
   let browser;
   try {
-    const puppeteer = await import("puppeteer-core");
+    const puppeteer = await import("puppeteer");
     
-    console.log("Connecting to Browserless...");
+    console.log("Launching local Puppeteer browser...");
     
-    // Connect to Browserless.io remote browser with stealth mode
-    browser = await puppeteer.default.connect({
-      browserWSEndpoint: `wss://chrome.browserless.io?token=${browserlessKey}&stealth=true&blockAds=true`,
+    browser = await puppeteer.default.launch({
+      headless: true,
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu",
+      ],
     });
 
     console.log("Browser launched, creating page...");
@@ -167,20 +173,9 @@ export async function scrapeFragranticaMetadata(
       timeout: 60000,
     });
 
-    // Check if we hit Cloudflare challenge
-    const title = await page.title();
-    console.log(`Page title: ${title}`);
-    
-    if (title.includes("Just a moment") || title.includes("Cloudflare")) {
-      // Wait for Cloudflare challenge to resolve
-      console.log("Cloudflare challenge detected, waiting...");
-      await new Promise(resolve => setTimeout(resolve, 8000));
-      await page.waitForNavigation({ waitUntil: "networkidle2", timeout: 30000 }).catch(() => {});
-    }
-
     // Wait for notes to load (they're dynamically rendered)
     await page.waitForSelector('a[href*="/notes/"]', { timeout: 15000 }).catch(() => {
-      console.log("No notes selector found after waiting, continuing anyway...");
+      console.log("No notes selector found, continuing anyway...");
     });
 
     console.log("Page loaded, extracting data...");
@@ -397,8 +392,8 @@ export async function scrapeFragranticaMetadata(
     console.error("Failed to scrape Fragrantica metadata:", error);
   } finally {
     if (browser) {
-      await browser.disconnect();
-      console.log("Disconnected from Browserless");
+      await browser.close();
+      console.log("Browser closed");
     }
   }
 

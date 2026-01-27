@@ -8,10 +8,8 @@ runConfig:
   # memoryMiB: 512
 
 # Environment variables and secrets.
-env:
-  # Browserless.io API key for scraping Fragrantica metadata
-  # Create secret: firebase apphosting:secrets:set BROWSERLESS_API_KEY
-  - variable: BROWSERLESS_API_KEY
-    secret: BROWSERLESS_API_KEY
-    availability:
-      - RUNTIME
+# Note: Fragrantica scraping disabled in production (Cloudflare blocks cloud browsers)
+# Run scripts/backfillMetadata.ts locally to populate notes for added fragrances
+# env:
+#   - variable: EXAMPLE
+#     value: example
