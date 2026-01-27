@@ -13,18 +13,18 @@ interface FragranceCardProps {
   isLoser?: boolean;
 }
 
-function getDisplayNotes(fragrance: FragrancePublic): string[] {
-  if (fragrance.notes?.top?.length) {
-    // Combine top 2 from each tier for a quick overview
-    const top = fragrance.notes.top?.slice(0, 2) || [];
-    const middle = fragrance.notes.middle?.slice(0, 2) || [];
-    const base = fragrance.notes.base?.slice(0, 2) || [];
-    return [...top, ...middle, ...base].slice(0, 5);
-  }
-  if (fragrance.notes?.all?.length) {
-    return fragrance.notes.all.slice(0, 5);
-  }
-  return [];
+function getGroupedNotes(fragrance: FragrancePublic): { 
+  top: string[]; 
+  heart: string[]; 
+  base: string[]; 
+  all: string[];
+} {
+  return {
+    top: fragrance.notes?.top?.slice(0, 3) || [],
+    heart: fragrance.notes?.middle?.slice(0, 3) || [],
+    base: fragrance.notes?.base?.slice(0, 3) || [],
+    all: fragrance.notes?.all?.slice(0, 5) || [],
+  };
 }
 
 export default function FragranceCard({
@@ -36,9 +36,10 @@ export default function FragranceCard({
 }: FragranceCardProps) {
   const [showDetails, setShowDetails] = useState(false);
   
-  const displayNotes = getDisplayNotes(fragrance);
+  const groupedNotes = getGroupedNotes(fragrance);
+  const hasPyramid = groupedNotes.top.length > 0 || groupedNotes.heart.length > 0 || groupedNotes.base.length > 0;
   const displayAccords = fragrance.accords?.slice(0, 3) || [];
-  const hasDetails = displayNotes.length > 0 || displayAccords.length > 0;
+  const hasDetails = hasPyramid || groupedNotes.all.length > 0 || displayAccords.length > 0;
 
   return (
     <button
@@ -104,7 +105,7 @@ export default function FragranceCard({
         {hasDetails && !isWinner && !isLoser && (
           <div className={`
             absolute inset-0 bg-arena-black/90 backdrop-blur-sm
-            flex flex-col justify-center p-4
+            flex flex-col justify-center p-4 overflow-visible
             transition-opacity duration-200
             ${showDetails ? "opacity-100" : "opacity-0 pointer-events-none"}
           `}>
@@ -124,11 +125,48 @@ export default function FragranceCard({
               </div>
             )}
             
-            {displayNotes.length > 0 && (
+            {hasPyramid ? (
+              <div className="space-y-2">
+                <p className="font-modern text-[10px] uppercase tracking-wider text-arena-muted mb-1">Notes Pyramid</p>
+                
+                {groupedNotes.top.length > 0 && (
+                  <div className="flex items-start gap-2">
+                    <span className="font-modern text-[9px] uppercase tracking-wide text-amber-400/80 w-10 pt-0.5 flex-shrink-0">Top</span>
+                    <div className="flex flex-wrap gap-1">
+                      {groupedNotes.top.map((note) => (
+                        <NoteChip key={note} note={note} variant="top" />
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {groupedNotes.heart.length > 0 && (
+                  <div className="flex items-start gap-2">
+                    <span className="font-modern text-[9px] uppercase tracking-wide text-rose-400/80 w-10 pt-0.5 flex-shrink-0">Heart</span>
+                    <div className="flex flex-wrap gap-1">
+                      {groupedNotes.heart.map((note) => (
+                        <NoteChip key={note} note={note} variant="heart" />
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {groupedNotes.base.length > 0 && (
+                  <div className="flex items-start gap-2">
+                    <span className="font-modern text-[9px] uppercase tracking-wide text-emerald-400/80 w-10 pt-0.5 flex-shrink-0">Base</span>
+                    <div className="flex flex-wrap gap-1">
+                      {groupedNotes.base.map((note) => (
+                        <NoteChip key={note} note={note} variant="base" />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : groupedNotes.all.length > 0 && (
               <div>
                 <p className="font-modern text-[10px] uppercase tracking-wider text-arena-muted mb-1.5">Key Notes</p>
                 <div className="flex flex-wrap gap-1.5">
-                  {displayNotes.map((note) => (
+                  {groupedNotes.all.map((note) => (
                     <NoteChip key={note} note={note} />
                   ))}
                 </div>
