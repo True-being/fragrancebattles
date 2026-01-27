@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import AddFragranceModal from "./AddFragranceModal";
 
@@ -20,14 +21,16 @@ export default function NavBar() {
       <nav className="fixed top-0 left-0 right-0 z-50 glass-dark border-b border-arena-border/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* Logo - expressive mixed typography */}
-            <Link href="/" className="group flex items-baseline gap-1">
-              <span className="font-display text-xl sm:text-2xl text-arena-white tracking-wider">
-                FRAGRANCE
-              </span>
-              <span className="font-elegant italic text-lg sm:text-xl text-arena-accent">
-                Battles
-              </span>
+            {/* Logo */}
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/logo.png"
+                alt="Fragrance Battles"
+                width={40}
+                height={40}
+                className="h-10 w-10"
+                priority
+              />
             </Link>
 
             {/* Navigation */}

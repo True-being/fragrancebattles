@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import "./globals.css";
 import NavBar from "@/components/NavBar";
 
@@ -8,6 +9,10 @@ export const metadata: Metadata = {
   description:
     "Head-to-head fragrance battles. Vote for your favorites and see real-time rankings. The ultimate taste battleground.",
   keywords: ["fragrance", "perfume", "cologne", "rankings", "voting", "arena"],
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
   openGraph: {
     title: "Fragrance Battles",
     description: "Two Enter. One Wins.",
@@ -29,15 +34,13 @@ export default function RootLayout({
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
               <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
-                {/* Logo with mixed fonts */}
-                <div className="flex items-baseline gap-1">
-                  <span className="font-display text-lg text-arena-white/80 tracking-wide">
-                    FRAGRANCE
-                  </span>
-                  <span className="font-elegant italic text-base text-arena-accent/80">
-                    Arena
-                  </span>
-                </div>
+                <Image
+                  src="/logo.png"
+                  alt="Fragrance Battles"
+                  width={32}
+                  height={32}
+                  className="h-8 w-8 opacity-80"
+                />
                 <span className="hidden sm:block text-arena-border">·</span>
                 <p className="font-editorial italic text-arena-muted text-sm">
                   Taste is the argument.
