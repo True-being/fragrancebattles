@@ -8,7 +8,7 @@ import {
   scrapeFragranticaMetadata,
 } from "@/lib/fragrantica";
 import { DEFAULT_ELO, type FragrancePublic, type ArenaFlags } from "@/types";
-import { invalidateFragranceCache } from "@/app/api/rankings/search/route";
+import { invalidateFragranceCache } from "@/lib/fragranceCache";
 
 interface AddFragranceRequest {
   url: string;

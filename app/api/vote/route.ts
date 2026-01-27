@@ -3,7 +3,7 @@ import { getAdminFirestore } from "@/lib/firebase/admin";
 import { updateRatings, isUpset } from "@/lib/elo";
 import { VoteRequest, VoteResponse, Arena, Battle, Fragrance } from "@/types";
 import { Timestamp, FieldValue } from "firebase-admin/firestore";
-import { invalidateFragranceCache } from "@/app/api/rankings/search/route";
+import { invalidateFragranceCache } from "@/lib/fragranceCache";
 
 export async function POST(request: NextRequest) {
   try {
