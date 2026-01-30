@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { getAdminFirestore } from "@/lib/firebase/admin";
 import { Fragrance, Arena, ARENAS, ARENA_LABELS, getFragranticaUrl } from "@/types";
 import NoteChip from "@/components/NoteChip";
+import { slugify, generateBreadcrumbJsonLd } from "@/lib/seo";
 
 interface ArenaStat {
   arena: Arena;
@@ -176,6 +177,14 @@ export default async function FragranceDetailPage({ params }: PageProps) {
   });
 
   const jsonLd = generateFragranceJsonLd(fragrance, arenaStats);
+  const brandSlug = slugify(fragrance.brand);
+
+  const breadcrumbJsonLd = generateBreadcrumbJsonLd([
+    { name: "Home", url: "/" },
+    { name: "Rankings", url: "/rankings" },
+    { name: fragrance.brand, url: `/brand/${brandSlug}` },
+    { name: fragrance.name, url: `/fragrance/${fragrance.slug}` },
+  ]);
 
   return (
     <div className="min-h-screen">
@@ -184,19 +193,41 @@ export default async function FragranceDetailPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
 
-      {/* Back link */}
-      <div className="max-w-4xl mx-auto px-4 py-6">
-        <Link
-          href="/rankings"
-          className="inline-flex items-center gap-2 font-modern text-arena-light hover:text-arena-white transition-colors text-sm group"
-        >
-          <svg className="w-4 h-4 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
-          </svg>
-          Back to Rankings
-        </Link>
-      </div>
+      {/* Breadcrumb */}
+      <nav className="max-w-4xl mx-auto px-4 py-6">
+        <ol className="flex items-center gap-2 font-modern text-sm text-arena-muted">
+          <li>
+            <Link href="/" className="hover:text-arena-light transition-colors">
+              Home
+            </Link>
+          </li>
+          <li className="text-arena-border">/</li>
+          <li>
+            <Link
+              href="/rankings"
+              className="hover:text-arena-light transition-colors"
+            >
+              Rankings
+            </Link>
+          </li>
+          <li className="text-arena-border">/</li>
+          <li>
+            <Link
+              href={`/brand/${brandSlug}`}
+              className="hover:text-arena-light transition-colors"
+            >
+              {fragrance.brand}
+            </Link>
+          </li>
+          <li className="text-arena-border">/</li>
+          <li className="text-arena-white truncate max-w-[150px]">{fragrance.name}</li>
+        </ol>
+      </nav>
 
       {/* Hero */}
       <section className="relative max-w-4xl mx-auto px-4 pb-12">
@@ -219,10 +250,13 @@ export default async function FragranceDetailPage({ params }: PageProps) {
 
           {/* Info */}
           <div className="text-center md:text-left">
-            {/* Brand - modern clean */}
-            <p className="font-modern text-arena-light text-sm uppercase tracking-[0.25em] mb-3">
+            {/* Brand - modern clean, linked */}
+            <Link
+              href={`/brand/${brandSlug}`}
+              className="font-modern text-arena-light text-sm uppercase tracking-[0.25em] mb-3 block hover:text-arena-accent transition-colors"
+            >
               {fragrance.brand}
-            </p>
+            </Link>
             {/* Name - elegant serif, large */}
             <h1 className="font-elegant text-4xl md:text-5xl lg:text-6xl text-arena-white leading-tight mb-6">
               {fragrance.name}
@@ -297,7 +331,7 @@ export default async function FragranceDetailPage({ params }: PageProps) {
                       <p className="font-modern text-xs uppercase tracking-wider text-amber-400/80">Top</p>
                       <div className="flex flex-wrap gap-1.5">
                         {fragrance.notes.top.map((note) => (
-                          <NoteChip key={note} note={note} variant="top" size="md" />
+                          <NoteChip key={note} note={note} variant="top" size="md" linkable />
                         ))}
                       </div>
                     </div>
@@ -307,7 +341,7 @@ export default async function FragranceDetailPage({ params }: PageProps) {
                       <p className="font-modern text-xs uppercase tracking-wider text-rose-400/80">Heart</p>
                       <div className="flex flex-wrap gap-1.5">
                         {fragrance.notes.middle.map((note) => (
-                          <NoteChip key={note} note={note} variant="heart" size="md" />
+                          <NoteChip key={note} note={note} variant="heart" size="md" linkable />
                         ))}
                       </div>
                     </div>
@@ -317,7 +351,7 @@ export default async function FragranceDetailPage({ params }: PageProps) {
                       <p className="font-modern text-xs uppercase tracking-wider text-emerald-400/80">Base</p>
                       <div className="flex flex-wrap gap-1.5">
                         {fragrance.notes.base.map((note) => (
-                          <NoteChip key={note} note={note} variant="base" size="md" />
+                          <NoteChip key={note} note={note} variant="base" size="md" linkable />
                         ))}
                       </div>
                     </div>
@@ -332,7 +366,7 @@ export default async function FragranceDetailPage({ params }: PageProps) {
                 <span className="font-modern text-arena-muted text-sm">Notes</span>
                 <div className="flex flex-wrap gap-1.5">
                   {fragrance.notes.all.map((note) => (
-                    <NoteChip key={note} note={note} size="md" />
+                    <NoteChip key={note} note={note} size="md" linkable />
                   ))}
                 </div>
               </div>

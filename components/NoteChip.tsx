@@ -2,12 +2,18 @@
 
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
+import Link from "next/link";
 import { getNoteImage } from "@/lib/noteImages";
 
 interface NoteChipProps {
   note: string;
   variant?: "default" | "top" | "heart" | "base";
   size?: "sm" | "md";
+  linkable?: boolean;
+}
+
+function getNoteSlug(note: string): string {
+  return note.toLowerCase().replace(/\s+/g, "-").replace(/_/g, "-");
 }
 
 const variantStyles = {
@@ -49,7 +55,7 @@ function NotePreview({ imageUrl, note, x, y }: { imageUrl: string; note: string;
   );
 }
 
-export default function NoteChip({ note, variant = "default", size = "sm" }: NoteChipProps) {
+export default function NoteChip({ note, variant = "default", size = "sm", linkable = false }: NoteChipProps) {
   const imageUrl = getNoteImage(note);
   const styles = variantStyles[variant];
   const [showPreview, setShowPreview] = useState(false);
@@ -73,24 +79,34 @@ export default function NoteChip({ note, variant = "default", size = "sm" }: Not
     }
   };
 
+  const chipContent = (
+    <span className={`inline-flex items-center font-modern border rounded ${styles} ${sizeClasses} ${linkable ? "hover:opacity-80 transition-opacity cursor-pointer" : ""}`}>
+      {imageUrl && (
+        <span className={`relative flex-shrink-0 ${imgSize}`}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            ref={imgRef}
+            src={imageUrl}
+            alt={note}
+            className="w-full h-full object-cover rounded-full cursor-pointer"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={() => setShowPreview(false)}
+          />
+        </span>
+      )}
+      <span>{note}</span>
+    </span>
+  );
+
   return (
     <>
-      <span className={`inline-flex items-center font-modern border rounded ${styles} ${sizeClasses}`}>
-        {imageUrl && (
-          <span className={`relative flex-shrink-0 ${imgSize}`}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              ref={imgRef}
-              src={imageUrl}
-              alt={note}
-              className="w-full h-full object-cover rounded-full cursor-pointer"
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={() => setShowPreview(false)}
-            />
-          </span>
-        )}
-        <span>{note}</span>
-      </span>
+      {linkable ? (
+        <Link href={`/notes/${getNoteSlug(note)}`}>
+          {chipContent}
+        </Link>
+      ) : (
+        chipContent
+      )}
       
       {showPreview && imageUrl && (
         <NotePreview imageUrl={imageUrl} note={note} x={previewPos.x} y={previewPos.y} />
