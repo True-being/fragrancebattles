@@ -57,9 +57,9 @@ async function launchBrowser(): Promise<Browser> {
   
   console.log('Launching browser...');
   
-  // Use 'new' headless mode which is harder to detect
+  // Use headless mode (new headless is now the default in Puppeteer)
   return puppeteer.default.launch({
-    headless: 'new',
+    headless: true,
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
