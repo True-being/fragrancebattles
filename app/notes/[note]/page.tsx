@@ -141,13 +141,14 @@ async function getNoteData(noteSlug: string): Promise<NoteData | null> {
 }
 
 /**
- * Generate static params for all notes with images
+ * Force dynamic rendering - note pages are server-rendered on demand
+ * to avoid OOM during build (each page fetches full fragrances collection)
  */
+export const dynamic = "force-dynamic";
+
+// No static params - all note pages rendered on-demand
 export async function generateStaticParams() {
-  const notes = getAvailableNotes();
-  return notes.map((note) => ({
-    note: note.replace(/_/g, "-"),
-  }));
+  return [];
 }
 
 export async function generateMetadata({

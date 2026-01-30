@@ -102,19 +102,14 @@ async function getBrandData(slug: string): Promise<BrandData | null> {
 }
 
 /**
- * Generate static params for top brands
+ * Force dynamic rendering - brand pages are server-rendered on demand
+ * to avoid OOM during build (each page fetches full fragrances collection)
  */
+export const dynamic = "force-dynamic";
+
+// No static params - all brand pages rendered on-demand
 export async function generateStaticParams() {
-  try {
-    const brands = await getAllBrands();
-    // Pre-render top 50 brands by frequency
-    return brands.slice(0, 50).map((brand) => ({
-      slug: brand.slug,
-    }));
-  } catch (error) {
-    console.error("Error generating static params for brands:", error);
-    return [];
-  }
+  return [];
 }
 
 export async function generateMetadata({
