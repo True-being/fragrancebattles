@@ -378,7 +378,7 @@ async function scrapeFragrancePage(page: Page, url: string): Promise<Fragrantica
     
     if (accordContainer) {
       // Find accord names in child divs with the rounded styling
-      const accordDivs = accordContainer.querySelectorAll('div.rounded-br-lg, div[class*="rounded"]');
+      const accordDivs = (accordContainer as Element).querySelectorAll('div.rounded-br-lg, div[class*="rounded"]');
       accordDivs.forEach(div => {
         const text = (div.textContent || '').trim().toLowerCase();
         if (
