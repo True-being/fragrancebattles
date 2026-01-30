@@ -2,9 +2,12 @@ import { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "About — Fragrance Battles",
+  title: "About",
   description:
     "Fragrance Battles ranks collective taste, memory, and cultural impact through head-to-head battles. Smell is subjective. This is the argument.",
+  alternates: {
+    canonical: "/about",
+  },
 };
 
 export default function AboutPage() {

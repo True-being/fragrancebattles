@@ -18,16 +18,33 @@ npx tsx scripts/scrapePulse.ts            # Scrape Fragrantica Pulse page
 
 ---
 
+## Prerequisites
+
+### Firecrawl API Key (Required for Scraping)
+
+The scraping scripts use [Firecrawl](https://firecrawl.dev) to bypass Cloudflare and handle IP rotation.
+
+1. Sign up at https://firecrawl.dev
+2. Get your API key
+3. Add to `.env.local`:
+   ```
+   FIRECRAWL_API_KEY=fc-your-api-key-here
+   ```
+
+The free tier includes 500 credits - enough for initial testing.
+
+---
+
 ## Backfilling Fragrance Metadata (Notes, Year, Perfumer, etc.)
 
 ### The Problem
 
-Fragrantica has Cloudflare protection that blocks all cloud-based browsers. This means when you add a fragrance via the website, **notes and other metadata can't be scraped in production**.
+Fragrantica has Cloudflare protection that blocks scraping. When you add a fragrance via the website, **notes and other metadata can't be scraped in production**.
 
 ### The Solution
 
 1. Fragrances are added without notes (they still work, just missing note data)
-2. Run the backfill script **locally** on your machine to populate the missing data
+2. Run the backfill script to populate the missing data using Firecrawl
 
 ---
 
@@ -100,29 +117,24 @@ npx tsx scripts/backfillMetadata.ts
 The Pulse page (https://www.fragrantica.com/pulse/) shows fragrances with the most "buzz" - useful for adding popular/trending fragrances to your database.
 
 ```bash
-# Default (3 concurrent pages)
+# Default (no limit)
 npx tsx scripts/scrapePulse.ts
 
-# Faster (5 concurrent pages - more aggressive)
-npx tsx scripts/scrapePulse.ts --concurrency=5
-
-# Conservative (1 page - safest)
-npx tsx scripts/scrapePulse.ts --concurrency=1
+# Limit to 50 new fragrances
+npx tsx scripts/scrapePulse.ts --limit=50
 ```
 
 This script:
-1. Opens the Fragrantica Pulse page
+1. Uses Firecrawl to scrape the Fragrantica Pulse page
 2. Extracts all fragrance links
 3. Pre-filters existing fragrances (fast Firestore check)
-4. Creates a pool of browser pages for concurrent scraping
-5. For each new fragrance:
-   - Navigates to the fragrance page and scrapes full metadata
+4. For each new fragrance:
+   - Scrapes full metadata via Firecrawl
    - Adds to Firestore with notes, accords, gender, year, etc.
 
 The script automatically:
-- Uses concurrent pages (3 by default, configurable 1-10)
+- Uses Firecrawl's managed infrastructure (no IP blocking!)
 - Skips existing fragrances before scraping
-- Rate-limits requests (1.5s delay per worker)
 - Sets arena flags based on detected gender
 - Flags fragrances for backfill if notes weren't found
 
@@ -142,16 +154,16 @@ The backfill script queries ONLY fragrances where `needsBackfill: true`, so it's
 ### "No fragrances needing backfill"
 All fragrances already have notes. Nothing to do.
 
-### Script crashes or times out
-- Make sure you have Chrome installed (Puppeteer uses it)
-- Try running with fewer fragrances by editing the `limit(50)` in the script
-- Check your internet connection
+### "FIRECRAWL_API_KEY environment variable is required"
+Add your Firecrawl API key to `.env.local`:
+```
+FIRECRAWL_API_KEY=fc-your-api-key-here
+```
 
-### Cloudflare blocks scraping
-This shouldn't happen locally, but if it does:
-- Wait a few minutes and try again
-- Try from a different network
-- The script has a 3-second delay between requests to avoid rate limiting
+### Script crashes or times out
+- Check your internet connection
+- Try running with `--limit=10` to test with fewer fragrances
+- Check your Firecrawl dashboard for API usage/errors
 
 ### Firestore index error
 First time you run the script, Firestore may ask you to create an index. Click the link in the error message - it takes you directly to the Firebase console to create it with one click.

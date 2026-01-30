@@ -6,6 +6,45 @@ import { getAdminFirestore } from "@/lib/firebase/admin";
 import { Fragrance, Arena, ARENAS, ARENA_LABELS, getFragranticaUrl } from "@/types";
 import NoteChip from "@/components/NoteChip";
 
+interface ArenaStat {
+  arena: Arena;
+  label: string;
+  elo: number;
+  rank: number;
+  battles: number;
+  wins: number;
+  winRate: number;
+}
+
+function generateFragranceJsonLd(fragrance: Fragrance, stats: ArenaStat[]) {
+  const overallStat = stats.find((s) => s.arena === "overall") || stats[0];
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: fragrance.name,
+    brand: {
+      "@type": "Brand",
+      name: fragrance.brand,
+    },
+    image: fragrance.imageUrl,
+    description:
+      fragrance.description ||
+      `${fragrance.name} is a fragrance by ${fragrance.brand}${fragrance.year ? ` released in ${fragrance.year}` : ""}.`,
+    ...(fragrance.year && { releaseDate: fragrance.year.toString() }),
+    ...(overallStat &&
+      overallStat.battles > 0 && {
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: Math.min(5, Math.max(1, overallStat.winRate / 20)),
+          bestRating: 5,
+          worstRating: 1,
+          ratingCount: overallStat.battles,
+        },
+      }),
+  };
+}
+
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
@@ -64,16 +103,38 @@ export async function generateMetadata({
 
   if (!fragrance) {
     return {
-      title: "Fragrance Not Found — Fragrance Battles",
+      title: "Fragrance Not Found",
     };
   }
 
+  const title = `${fragrance.name} by ${fragrance.brand}`;
+  const description = fragrance.description
+    ? `${fragrance.description.slice(0, 150)}...`
+    : `See how ${fragrance.name} by ${fragrance.brand} ranks in head-to-head fragrance battles. View win rate, battles, and arena rankings.`;
+
   return {
-    title: `${fragrance.name} by ${fragrance.brand} — Fragrance Battles`,
-    description: `See how ${fragrance.name} by ${fragrance.brand} ranks in head-to-head fragrance battles. View win rate, battles, and arena rankings.`,
+    title,
+    description,
+    alternates: {
+      canonical: `/fragrance/${slug}`,
+    },
     openGraph: {
-      title: `${fragrance.name} by ${fragrance.brand}`,
-      description: `Ranking stats for ${fragrance.name}`,
+      title,
+      description,
+      type: "website",
+      images: [
+        {
+          url: fragrance.imageUrl,
+          width: 400,
+          height: 400,
+          alt: `${fragrance.name} by ${fragrance.brand}`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
       images: [fragrance.imageUrl],
     },
   };
@@ -114,8 +175,16 @@ export default async function FragranceDetailPage({ params }: PageProps) {
     };
   });
 
+  const jsonLd = generateFragranceJsonLd(fragrance, arenaStats);
+
   return (
     <div className="min-h-screen">
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* Back link */}
       <div className="max-w-4xl mx-auto px-4 py-6">
         <Link

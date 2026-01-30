@@ -16,8 +16,15 @@ export async function generateMetadata({
   const arenaLabel = ARENA_LABELS[arena] || "Overall";
 
   return {
-    title: `${arenaLabel} Fragrance Rankings — Fragrance Battles`,
-    description: `See the top-ranked ${arenaLabel.toLowerCase()} fragrances based on head-to-head voting. Rankings update in real time.`,
+    title: `${arenaLabel} Fragrance Rankings`,
+    description: `See the top-ranked ${arenaLabel.toLowerCase()} fragrances based on head-to-head voting. Rankings update in real time as users vote.`,
+    alternates: {
+      canonical: arena === "overall" ? "/rankings" : `/rankings?arena=${arena}`,
+    },
+    openGraph: {
+      title: `${arenaLabel} Fragrance Rankings`,
+      description: `Top ${arenaLabel.toLowerCase()} fragrances ranked by community votes.`,
+    },
   };
 }
 

@@ -1,9 +1,12 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy — Fragrance Battles",
+  title: "Privacy Policy",
   description:
     "Privacy policy for Fragrance Battles. We respect your privacy and collect minimal data.",
+  alternates: {
+    canonical: "/privacy",
+  },
 };
 
 export default function PrivacyPage() {

@@ -5,18 +5,63 @@ import "./globals.css";
 import NavBar from "@/components/NavBar";
 
 export const metadata: Metadata = {
-  title: "Fragrance Battles — Two Enter. One Wins.",
+  metadataBase: new URL("https://fragrancebattles.com"),
+  title: {
+    default: "Fragrance Battles — Two Enter. One Wins.",
+    template: "%s — Fragrance Battles",
+  },
   description:
-    "Head-to-head fragrance battles. Vote for your favorites and see real-time rankings. The ultimate taste battleground.",
-  keywords: ["fragrance", "perfume", "cologne", "rankings", "voting", "arena"],
+    "Head-to-head fragrance battles. Vote for your favorites and see real-time rankings powered by Elo. The ultimate taste battleground for perfume enthusiasts.",
+  keywords: [
+    "fragrance",
+    "perfume",
+    "cologne",
+    "rankings",
+    "voting",
+    "arena",
+    "elo",
+    "best perfume",
+    "fragrance comparison",
+    "perfume battle",
+    "fragrance ranking",
+  ],
   icons: {
     icon: "/logo.png",
     apple: "/logo.png",
   },
   openGraph: {
-    title: "Fragrance Battles",
-    description: "Two Enter. One Wins.",
     type: "website",
+    siteName: "Fragrance Battles",
+    title: "Fragrance Battles — Two Enter. One Wins.",
+    description:
+      "Head-to-head fragrance battles. Vote for your favorites and see real-time rankings powered by Elo.",
+    locale: "en_US",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Fragrance Battles - Two Enter. One Wins.",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Fragrance Battles — Two Enter. One Wins.",
+    description:
+      "Head-to-head fragrance battles. Vote for your favorites and see real-time rankings.",
+    images: ["/og-image.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 };
 
