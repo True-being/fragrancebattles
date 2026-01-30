@@ -1,0 +1,37 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "fragrances",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "arenas.overall", "order": "ASCENDING" },
+        { "fieldPath": "randomOrder", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "fragrances",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "arenas.masculine", "order": "ASCENDING" },
+        { "fieldPath": "randomOrder", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "fragrances",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "arenas.feminine", "order": "ASCENDING" },
+        { "fieldPath": "randomOrder", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "fragrances",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "arenas.unisex", "order": "ASCENDING" },
+        { "fieldPath": "randomOrder", "order": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
