@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/api/"],
       },
     ],
-    sitemap: "https://fragrancebattles.com/sitemap.xml",
+    sitemap: "https://fragrancebattles.com/sitemap-index.xml",
   };
 }
