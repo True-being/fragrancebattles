@@ -1,0 +1,27 @@
+# Fragrance Battles robots.txt
+User-agent: *
+Allow: /
+Allow: /rankings
+Allow: /fragrance/
+Allow: /brand/
+
+# Sitemap
+Sitemap: https://fragrancebattles.com/sitemap.xml
+
+# Rate limit aggressive crawlers
+User-agent: GPTBot
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+# Crawl-delay for all bots (seconds between requests)
+# Note: Not all bots respect this, but Google and Bing do
+User-agent: *
+Crawl-delay: 2

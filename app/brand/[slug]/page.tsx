@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { cache } from "react";
 import { getAdminFirestore } from "@/lib/firebase/admin";
 import { Fragrance, RankedFragrance } from "@/types";
 import {
@@ -28,8 +29,9 @@ interface BrandData {
 /**
  * Get brand data by slug - uses brandSlug field for efficient queries
  * Limited to top 100 fragrances to reduce Firestore reads
+ * cache() deduplicates requests within a single render cycle
  */
-async function getBrandData(slug: string): Promise<BrandData | null> {
+const getBrandData = cache(async (slug: string): Promise<BrandData | null> => {
   const db = getAdminFirestore();
 
   // Query directly by brandSlug with limit to prevent excessive reads
@@ -86,7 +88,7 @@ async function getBrandData(slug: string): Promise<BrandData | null> {
     totalBattles,
     avgWinRate,
   };
-}
+});
 
 /**
  * Force dynamic rendering - brand pages are server-rendered on demand

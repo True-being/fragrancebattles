@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { cache } from "react";
 import { getAdminFirestore } from "@/lib/firebase/admin";
 import { Fragrance, Arena, ARENAS, ARENA_LABELS, getFragranticaUrl } from "@/types";
 import NoteChip from "@/components/NoteChip";
@@ -54,7 +55,9 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-async function getFragranceBySlug(slug: string): Promise<Fragrance | null> {
+// cache() deduplicates requests within a single render cycle
+// This prevents double-fetching for generateMetadata + page component
+const getFragranceBySlug = cache(async (slug: string): Promise<Fragrance | null> => {
   try {
     const db = getAdminFirestore();
 
@@ -74,7 +77,7 @@ async function getFragranceBySlug(slug: string): Promise<Fragrance | null> {
     console.error("Error fetching fragrance:", error);
     return null;
   }
-}
+});
 
 async function getArenaRank(
   fragranceId: string,
