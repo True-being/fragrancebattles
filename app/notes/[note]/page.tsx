@@ -14,6 +14,9 @@ import {
 } from "@/lib/seo";
 import RankingsTable from "@/components/RankingsTable";
 
+// Revalidate note pages every 10 minutes - note-fragrance associations rarely change
+export const revalidate = 600;
+
 interface PageProps {
   params: Promise<{ note: string }>;
 }

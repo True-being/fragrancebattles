@@ -11,6 +11,9 @@ import {
 } from "@/lib/seo";
 import RankingsTable from "@/components/RankingsTable";
 
+// Revalidate brand pages every 5 minutes
+export const revalidate = 300;
+
 interface PageProps {
   params: Promise<{ slug: string }>;
 }

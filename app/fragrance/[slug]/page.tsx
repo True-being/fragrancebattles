@@ -7,6 +7,10 @@ import { Fragrance, Arena, ARENAS, ARENA_LABELS, getFragranticaUrl } from "@/typ
 import NoteChip from "@/components/NoteChip";
 import { slugify, generateBreadcrumbJsonLd } from "@/lib/seo";
 
+// Revalidate fragrance pages every 5 minutes
+// Stats update frequently but users don't need real-time accuracy
+export const revalidate = 300;
+
 interface ArenaStat {
   arena: Arena;
   label: string;

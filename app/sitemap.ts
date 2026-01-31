@@ -5,6 +5,10 @@ import { slugify } from "@/lib/seo";
 const BASE_URL = "https://fragrancebattles.com";
 const URLS_PER_SITEMAP = 45000; // Stay under Google's 50k limit
 
+// Rebuild sitemap once per day - Google doesn't need real-time updates
+// This reduces 89k reads per request to 89k reads per day
+export const revalidate = 86400;
+
 // Hardcoded notes list (avoids filesystem access issues in production)
 const AVAILABLE_NOTES = [
   "almond", "amber", "ambergris", "anise", "apple", "apricot", "aquatic", "artemisia",
@@ -31,24 +35,14 @@ const AVAILABLE_NOTES = [
 /**
  * Generate sitemap index entries for dynamic sitemap generation
  * Next.js will create /sitemap/0.xml, /sitemap/1.xml, etc.
+ * 
+ * Hardcoded sitemap count to avoid Firestore reads on every request.
+ * Update NUM_SITEMAPS when collection grows beyond current capacity.
+ * Current: ~89k fragrances + ~2k brands + 140 notes = ~91k URLs = 3 sitemaps
  */
 export async function generateSitemaps() {
-  const db = getAdminFirestore();
-  
-  // Get total fragrance count
-  const countSnapshot = await db.collection("fragrances").count().get();
-  const fragranceCount = countSnapshot.data().count;
-  
-  // Calculate total URLs: static + brands (estimate ~2000) + notes + fragrances
-  const estimatedBrandCount = 2000;
-  const staticCount = 8;
-  const notesCount = AVAILABLE_NOTES.length;
-  const totalUrls = staticCount + estimatedBrandCount + notesCount + fragranceCount;
-  
-  // Calculate number of sitemaps needed
-  const numSitemaps = Math.ceil(totalUrls / URLS_PER_SITEMAP);
-  
-  return Array.from({ length: numSitemaps }, (_, i) => ({ id: i }));
+  const NUM_SITEMAPS = 3;
+  return Array.from({ length: NUM_SITEMAPS }, (_, i) => ({ id: i }));
 }
 
 export default async function sitemap({

@@ -4,6 +4,10 @@ import { Arena, ARENAS, ARENA_LABELS, RankedFragrance, Fragrance } from "@/types
 import ArenaTabs from "@/components/ArenaTabs";
 import RankingsTable from "@/components/RankingsTable";
 
+// Revalidate rankings every 60 seconds
+// Users see near-real-time data while reducing Firestore reads under high traffic
+export const revalidate = 60;
+
 interface PageProps {
   searchParams: Promise<{ arena?: string }>;
 }

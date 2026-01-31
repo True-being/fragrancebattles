@@ -1,29 +1,16 @@
 import { NextResponse } from "next/server";
-import { getAdminFirestore } from "@/lib/firebase/admin";
 
 const BASE_URL = "https://fragrancebattles.com";
-const URLS_PER_SITEMAP = 45000;
+
+// Known sitemap count - update when collection grows significantly
+// With 89k fragrances + 2k brands + 140 notes = ~91k URLs = 3 sitemaps at 45k each
+// This avoids a Firestore count query on every request
+const NUM_SITEMAPS = 3;
 
 export async function GET() {
-  const db = getAdminFirestore();
-  
-  // Get total fragrance count
-  const countSnapshot = await db.collection("fragrances").count().get();
-  const fragranceCount = countSnapshot.data().count;
-  
-  // Estimate total URLs
-  const estimatedBrandCount = 2000;
-  const staticCount = 8;
-  const notesCount = 140;
-  const totalUrls = staticCount + estimatedBrandCount + notesCount + fragranceCount;
-  
-  // Calculate number of sitemaps needed
-  const numSitemaps = Math.ceil(totalUrls / URLS_PER_SITEMAP);
-  
-  const sitemapEntries = Array.from({ length: numSitemaps }, (_, i) => {
+  const sitemapEntries = Array.from({ length: NUM_SITEMAPS }, (_, i) => {
     return `  <sitemap>
     <loc>${BASE_URL}/sitemap/${i}.xml</loc>
-    <lastmod>${new Date().toISOString()}</lastmod>
   </sitemap>`;
   }).join("\n");
   
@@ -35,7 +22,8 @@ ${sitemapEntries}
   return new NextResponse(xml, {
     headers: {
       "Content-Type": "application/xml",
-      "Cache-Control": "public, max-age=3600, s-maxage=3600",
+      // Cache for 24 hours - sitemap index rarely changes
+      "Cache-Control": "public, max-age=86400, s-maxage=86400",
     },
   });
 }
