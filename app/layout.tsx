@@ -25,10 +25,6 @@ export const metadata: Metadata = {
     "perfume battle",
     "fragrance ranking",
   ],
-  icons: {
-    icon: "/images/logo.png",
-    apple: "/images/logo.png",
-  },
   openGraph: {
     type: "website",
     siteName: "Fragrance Battles",
