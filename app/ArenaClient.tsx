@@ -76,12 +76,18 @@ export default function ArenaClient() {
 
     try {
       const sessionId = getSessionId();
+      const loserId = selectedWinnerId === battle.fragranceA.id 
+        ? battle.fragranceB.id 
+        : battle.fragranceA.id;
+      
       const res = await fetch("/api/vote", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           battleId: battle.battleId,
           winnerId: selectedWinnerId,
+          loserId,
+          arena: battle.arena,
           sessionId,
         }),
       });

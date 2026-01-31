@@ -1,19 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminFirestore } from "@/lib/firebase/admin";
 import { updateRatings, isUpset } from "@/lib/elo";
-import { VoteRequest, VoteResponse, Arena, Battle, Fragrance } from "@/types";
+import { VoteResponse, Arena, Fragrance } from "@/types";
 import { Timestamp, FieldValue } from "firebase-admin/firestore";
 import { invalidateFragranceCache } from "@/lib/fragranceCache";
 
+interface VoteRequestBody {
+  battleId: string;
+  winnerId: string;
+  loserId: string;
+  arena: Arena;
+  sessionId: string;
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const body: VoteRequest = await request.json();
-    const { battleId, winnerId, sessionId } = body;
+    const body: VoteRequestBody = await request.json();
+    const { battleId, winnerId, loserId, arena, sessionId } = body;
 
     // Validate input
-    if (!battleId || !winnerId || !sessionId) {
+    if (!battleId || !winnerId || !loserId || !arena || !sessionId) {
       return NextResponse.json(
-        { error: "Missing required fields: battleId, winnerId, sessionId" },
+        { error: "Missing required fields" },
         { status: 400 }
       );
     }
@@ -22,34 +30,17 @@ export async function POST(request: NextRequest) {
 
     // Use a transaction to ensure consistency
     const result = await db.runTransaction(async (transaction) => {
-      // 1. Read battle document
+      // 1. Check if battle already exists (idempotency)
       const battleRef = db.collection("battles").doc(battleId);
       const battleDoc = await transaction.get(battleRef);
 
-      if (!battleDoc.exists) {
-        throw new Error("Battle not found");
-      }
-
-      const battle = { id: battleDoc.id, ...battleDoc.data() } as Battle;
-
-      // 2. Check if already voted (idempotency)
-      if (battle.winnerId !== null) {
+      if (battleDoc.exists) {
         throw new Error("Battle already decided");
       }
 
-      // 3. Validate winner is part of this battle
-      if (winnerId !== battle.aId && winnerId !== battle.bId) {
-        throw new Error("Invalid winner - not part of this battle");
-      }
-
-      const loserId = winnerId === battle.aId ? battle.bId : battle.aId;
-      const arena = battle.arena as Arena;
-
-      // 4. Read both fragrance documents
+      // 2. Read both fragrance documents
       const winnerRef = db.collection("fragrances").doc(winnerId);
       const loserRef = db.collection("fragrances").doc(loserId);
-
-      // Also read session document (all reads must happen before writes)
       const sessionRef = db.collection("sessions").doc(sessionId);
 
       const [winnerDoc, loserDoc, sessionDoc] = await Promise.all([
@@ -68,18 +59,24 @@ export async function POST(request: NextRequest) {
       const winnerEloBefore = winner.elo[arena];
       const loserEloBefore = loser.elo[arena];
 
-      // 5. Compute Elo updates
+      // 3. Compute Elo updates
       const { newRatingA: winnerNewElo, newRatingB: loserNewElo } =
         updateRatings(winnerEloBefore, loserEloBefore, true);
 
-      // 6. Update battle document
-      transaction.update(battleRef, {
+      // 4. Create battle document (lazy creation - only when user votes)
+      transaction.set(battleRef, {
+        arena,
+        aId: winnerId,
+        bId: loserId,
+        aEloBefore: winnerEloBefore,
+        bEloBefore: loserEloBefore,
+        aEloAfter: winnerNewElo,
+        bEloAfter: loserNewElo,
         winnerId,
-        aEloAfter: winnerId === battle.aId ? winnerNewElo : loserNewElo,
-        bEloAfter: winnerId === battle.bId ? winnerNewElo : loserNewElo,
+        createdAt: Timestamp.now(),
       });
 
-      // 7. Update winner fragrance
+      // 5. Update winner fragrance
       transaction.update(winnerRef, {
         [`elo.${arena}`]: winnerNewElo,
         [`stats.battles.${arena}`]: FieldValue.increment(1),
@@ -87,14 +84,14 @@ export async function POST(request: NextRequest) {
         updatedAt: Timestamp.now(),
       });
 
-      // 8. Update loser fragrance
+      // 6. Update loser fragrance
       transaction.update(loserRef, {
         [`elo.${arena}`]: loserNewElo,
         [`stats.battles.${arena}`]: FieldValue.increment(1),
         updatedAt: Timestamp.now(),
       });
 
-      // 9. Write vote document
+      // 7. Write vote document
       const voteRef = db.collection("votes").doc();
       transaction.set(voteRef, {
         battleId,
@@ -105,7 +102,7 @@ export async function POST(request: NextRequest) {
         createdAt: Timestamp.now(),
       });
 
-      // 10. Update session vote counters
+      // 8. Update session vote counters
       if (sessionDoc.exists) {
         transaction.update(sessionRef, {
           lastSeenAt: Timestamp.now(),
@@ -154,14 +151,11 @@ export async function POST(request: NextRequest) {
     const message =
       error instanceof Error ? error.message : "Internal server error";
 
-    if (message === "Battle not found" || message === "Fragrance not found") {
+    if (message === "Fragrance not found") {
       return NextResponse.json({ error: message }, { status: 404 });
     }
 
-    if (
-      message === "Battle already decided" ||
-      message === "Invalid winner - not part of this battle"
-    ) {
+    if (message === "Battle already decided") {
       return NextResponse.json({ error: message }, { status: 400 });
     }
 

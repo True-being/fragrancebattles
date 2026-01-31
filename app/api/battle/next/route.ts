@@ -1,8 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAdminFirestore } from "@/lib/firebase/admin";
 import { getNextBattle } from "@/lib/matchmaking";
 import { Arena, ARENAS, BattleResponse, FragrancePublic } from "@/types";
-import { Timestamp } from "firebase-admin/firestore";
+import { createHash } from "crypto";
+
+/**
+ * Generate a deterministic battle ID from the matchup
+ * This allows us to defer battle document creation to the vote endpoint
+ * and avoid creating orphaned documents for battles that never get voted on
+ */
+function generateBattleId(arena: Arena, aId: string, bId: string, timestamp: number): string {
+  // Sort IDs to ensure consistency regardless of order
+  const [id1, id2] = [aId, bId].sort();
+  const data = `${arena}:${id1}:${id2}:${timestamp}`;
+  return createHash("sha256").update(data).digest("hex").slice(0, 20);
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -38,27 +49,14 @@ export async function GET(request: NextRequest) {
 
     const { fragranceA, fragranceB } = matchup;
 
-    // Create battle document
-    const db = getAdminFirestore();
-    const battleRef = db.collection("battles").doc();
-
-    const battleDoc = {
-      arena,
-      aId: fragranceA.id,
-      bId: fragranceB.id,
-      aEloBefore: fragranceA.elo[arena],
-      bEloBefore: fragranceB.elo[arena],
-      aEloAfter: null,
-      bEloAfter: null,
-      winnerId: null,
-      createdAt: Timestamp.now(),
-    };
-
-    await battleRef.set(battleDoc);
+    // Generate a deterministic battle ID instead of creating a Firestore document
+    // The battle document will be created lazily when the user actually votes
+    // This avoids writes for battles that are shown but never voted on
+    const battleId = generateBattleId(arena, fragranceA.id, fragranceB.id, Math.floor(Date.now() / 1000));
 
     // Format response
     const response: BattleResponse = {
-      battleId: battleRef.id,
+      battleId,
       arena,
       fragranceA: {
         id: fragranceA.id,
@@ -70,7 +68,7 @@ export async function GET(request: NextRequest) {
         concentration: fragranceA.concentration,
         accords: fragranceA.accords,
         notes: fragranceA.notes,
-      } as FragrancePublic,
+      },
       fragranceB: {
         id: fragranceB.id,
         name: fragranceB.name,
@@ -81,7 +79,7 @@ export async function GET(request: NextRequest) {
         concentration: fragranceB.concentration,
         accords: fragranceB.accords,
         notes: fragranceB.notes,
-      } as FragrancePublic,
+      },
     };
 
     return NextResponse.json(response);
