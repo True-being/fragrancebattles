@@ -335,7 +335,7 @@ export default async function FragranceDetailPage({ params }: PageProps) {
                       <p className="font-modern text-xs uppercase tracking-wider text-amber-400/80">Top</p>
                       <div className="flex flex-wrap gap-1.5">
                         {fragrance.notes.top.map((note) => (
-                          <NoteChip key={note} note={note} variant="top" size="md" linkable />
+                          <NoteChip key={note} note={note} variant="top" size="md" />
                         ))}
                       </div>
                     </div>
@@ -345,7 +345,7 @@ export default async function FragranceDetailPage({ params }: PageProps) {
                       <p className="font-modern text-xs uppercase tracking-wider text-rose-400/80">Heart</p>
                       <div className="flex flex-wrap gap-1.5">
                         {fragrance.notes.middle.map((note) => (
-                          <NoteChip key={note} note={note} variant="heart" size="md" linkable />
+                          <NoteChip key={note} note={note} variant="heart" size="md" />
                         ))}
                       </div>
                     </div>
@@ -355,7 +355,7 @@ export default async function FragranceDetailPage({ params }: PageProps) {
                       <p className="font-modern text-xs uppercase tracking-wider text-emerald-400/80">Base</p>
                       <div className="flex flex-wrap gap-1.5">
                         {fragrance.notes.base.map((note) => (
-                          <NoteChip key={note} note={note} variant="base" size="md" linkable />
+                          <NoteChip key={note} note={note} variant="base" size="md" />
                         ))}
                       </div>
                     </div>
@@ -370,7 +370,7 @@ export default async function FragranceDetailPage({ params }: PageProps) {
                 <span className="font-modern text-arena-muted text-sm">Notes</span>
                 <div className="flex flex-wrap gap-1.5">
                   {fragrance.notes.all.map((note) => (
-                    <NoteChip key={note} note={note} size="md" linkable />
+                    <NoteChip key={note} note={note} size="md" />
                   ))}
                 </div>
               </div>

@@ -9,7 +9,7 @@ import { eloDifference } from "./elo";
 
 const POOL_SIZE = 30;
 const MAX_RECENT_PAIRS = 30;
-const CACHE_TTL_MS = 60 * 1000; // 1 minute cache
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minute cache - reduces reads significantly
 
 interface MatchmakingResult {
   fragranceA: Fragrance;

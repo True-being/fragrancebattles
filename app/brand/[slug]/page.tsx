@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { getAdminFirestore } from "@/lib/firebase/admin";
 import { Fragrance, RankedFragrance } from "@/types";
 import {
-  slugify,
   generateBrandJsonLd,
   generateItemListJsonLd,
   generateBreadcrumbJsonLd,
@@ -27,34 +26,18 @@ interface BrandData {
 }
 
 /**
- * Get all unique brands for static generation
- */
-async function getAllBrands(): Promise<{ name: string; slug: string }[]> {
-  const db = getAdminFirestore();
-  const snapshot = await db.collection("fragrances").select("brand").get();
-
-  const brandSet = new Map<string, string>();
-  for (const doc of snapshot.docs) {
-    const brand = doc.data().brand as string;
-    if (brand && !brandSet.has(brand)) {
-      brandSet.set(brand, slugify(brand));
-    }
-  }
-
-  return Array.from(brandSet.entries()).map(([name, slug]) => ({ name, slug }));
-}
-
-/**
  * Get brand data by slug - uses brandSlug field for efficient queries
+ * Limited to top 100 fragrances to reduce Firestore reads
  */
 async function getBrandData(slug: string): Promise<BrandData | null> {
   const db = getAdminFirestore();
 
-  // Query directly by brandSlug (requires backfill script to have run)
+  // Query directly by brandSlug with limit to prevent excessive reads
   const snapshot = await db
     .collection("fragrances")
     .where("brandSlug", "==", slug)
     .orderBy("elo.overall", "desc")
+    .limit(100)
     .get();
 
   if (snapshot.empty) {
