@@ -4,6 +4,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import * as fs from "fs";
 import * as path from "path";
+import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { getAdminFirestore } from "@/lib/firebase/admin";
 import { Fragrance, RankedFragrance } from "@/types";
 import {
@@ -66,64 +68,182 @@ function noteHasImage(note: string): boolean {
 
 /**
  * Get fragrances containing a specific note
+ * Uses parallel queries on each notes array to avoid full collection scan
  */
-async function getNoteData(noteSlug: string): Promise<NoteData | null> {
+async function getNoteDataInternal(noteSlug: string): Promise<NoteData | null> {
   const db = getAdminFirestore();
 
   // Normalize the note slug for matching
   const normalizedNote = noteSlug.toLowerCase().replace(/-/g, "_");
   const displayName = formatNoteName(normalizedNote);
 
-  // Get all fragrances ordered by Elo
-  const snapshot = await db
-    .collection("fragrances")
-    .orderBy("elo.overall", "desc")
-    .get();
+  // Notes are stored as scraped from Fragrantica (e.g., "Pink Pepper", "Sandalwood")
+  // Convert URL slug to title case with spaces to match DB format
+  const noteNameTitleCase = noteSlug
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+
+  // Also try lowercase version as fallback (some notes may be stored differently)
+  const noteNameLowercase = noteSlug.replace(/-/g, " ").toLowerCase();
+
+  // Query each notes array in parallel using array-contains
+  // This is MUCH more efficient than reading the entire collection
+  // We query both title case and lowercase since note storage may vary
+  const [
+    topSnapTitle,
+    middleSnapTitle,
+    baseSnapTitle,
+    allSnapTitle,
+    topSnapLower,
+    middleSnapLower,
+    baseSnapLower,
+    allSnapLower,
+  ] = await Promise.all([
+    // Title case queries (e.g., "Pink Pepper")
+    db
+      .collection("fragrances")
+      .where("notes.top", "array-contains", noteNameTitleCase)
+      .orderBy("elo.overall", "desc")
+      .limit(300)
+      .get(),
+    db
+      .collection("fragrances")
+      .where("notes.middle", "array-contains", noteNameTitleCase)
+      .orderBy("elo.overall", "desc")
+      .limit(300)
+      .get(),
+    db
+      .collection("fragrances")
+      .where("notes.base", "array-contains", noteNameTitleCase)
+      .orderBy("elo.overall", "desc")
+      .limit(300)
+      .get(),
+    db
+      .collection("fragrances")
+      .where("notes.all", "array-contains", noteNameTitleCase)
+      .orderBy("elo.overall", "desc")
+      .limit(300)
+      .get(),
+    // Lowercase queries as fallback (e.g., "pink pepper")
+    db
+      .collection("fragrances")
+      .where("notes.top", "array-contains", noteNameLowercase)
+      .orderBy("elo.overall", "desc")
+      .limit(300)
+      .get(),
+    db
+      .collection("fragrances")
+      .where("notes.middle", "array-contains", noteNameLowercase)
+      .orderBy("elo.overall", "desc")
+      .limit(300)
+      .get(),
+    db
+      .collection("fragrances")
+      .where("notes.base", "array-contains", noteNameLowercase)
+      .orderBy("elo.overall", "desc")
+      .limit(300)
+      .get(),
+    db
+      .collection("fragrances")
+      .where("notes.all", "array-contains", noteNameLowercase)
+      .orderBy("elo.overall", "desc")
+      .limit(300)
+      .get(),
+  ]);
+
+  // Combine title case and lowercase snapshots
+  const topSnap = [...topSnapTitle.docs, ...topSnapLower.docs];
+  const middleSnap = [...middleSnapTitle.docs, ...middleSnapLower.docs];
+  const baseSnap = [...baseSnapTitle.docs, ...baseSnapLower.docs];
+  const allSnap = [...allSnapTitle.docs, ...allSnapLower.docs];
+
+  // Merge results, tracking which position each fragrance appears in
+  const fragranceMap = new Map<
+    string,
+    { data: Fragrance; docId: string; positions: Set<string> }
+  >();
+
+  for (const doc of topSnap) {
+    const existing = fragranceMap.get(doc.id);
+    if (existing) {
+      existing.positions.add("top");
+    } else {
+      fragranceMap.set(doc.id, {
+        data: doc.data() as Fragrance,
+        docId: doc.id,
+        positions: new Set(["top"]),
+      });
+    }
+  }
+
+  for (const doc of middleSnap) {
+    const existing = fragranceMap.get(doc.id);
+    if (existing) {
+      existing.positions.add("middle");
+    } else {
+      fragranceMap.set(doc.id, {
+        data: doc.data() as Fragrance,
+        docId: doc.id,
+        positions: new Set(["middle"]),
+      });
+    }
+  }
+
+  for (const doc of baseSnap) {
+    const existing = fragranceMap.get(doc.id);
+    if (existing) {
+      existing.positions.add("base");
+    } else {
+      fragranceMap.set(doc.id, {
+        data: doc.data() as Fragrance,
+        docId: doc.id,
+        positions: new Set(["base"]),
+      });
+    }
+  }
+
+  for (const doc of allSnap) {
+    const existing = fragranceMap.get(doc.id);
+    if (existing) {
+      existing.positions.add("all");
+    } else {
+      fragranceMap.set(doc.id, {
+        data: doc.data() as Fragrance,
+        docId: doc.id,
+        positions: new Set(["all"]),
+      });
+    }
+  }
+
+  // Convert to array and sort by Elo
+  const sortedFragrances = Array.from(fragranceMap.values()).sort(
+    (a, b) => (b.data.elo?.overall || 1500) - (a.data.elo?.overall || 1500)
+  );
 
   const fragrances: RankedFragrance[] = [];
   const notePosition = { top: 0, heart: 0, base: 0 };
 
-  for (const doc of snapshot.docs) {
-    const data = doc.data() as Fragrance;
-    const notes = data.notes;
+  for (const { data, docId, positions } of sortedFragrances) {
+    if (positions.has("top")) notePosition.top++;
+    if (positions.has("middle")) notePosition.heart++;
+    if (positions.has("base")) notePosition.base++;
 
-    if (!notes) continue;
+    const battles = data.stats?.battles?.overall || 0;
+    const wins = data.stats?.wins?.overall || 0;
 
-    // Check if fragrance contains this note
-    const inTop = notes.top?.some(
-      (n) => n.toLowerCase().replace(/\s+/g, "_") === normalizedNote
-    );
-    const inMiddle = notes.middle?.some(
-      (n) => n.toLowerCase().replace(/\s+/g, "_") === normalizedNote
-    );
-    const inBase = notes.base?.some(
-      (n) => n.toLowerCase().replace(/\s+/g, "_") === normalizedNote
-    );
-    const inAll = notes.all?.some(
-      (n) => n.toLowerCase().replace(/\s+/g, "_") === normalizedNote
-    );
-
-    if (inTop || inMiddle || inBase || inAll) {
-      if (inTop) notePosition.top++;
-      if (inMiddle) notePosition.heart++;
-      if (inBase) notePosition.base++;
-
-      const battles = data.stats?.battles?.overall || 0;
-      const wins = data.stats?.wins?.overall || 0;
-
-      fragrances.push({
-        rank: fragrances.length + 1,
-        id: doc.id,
-        name: data.name,
-        brand: data.brand,
-        slug: data.slug,
-        imageUrl: data.imageUrl,
-        elo: data.elo?.overall || 1500,
-        winRate: battles > 0 ? wins / battles : 0,
-        battles,
-        movement: "stable",
-      });
-    }
+    fragrances.push({
+      rank: fragrances.length + 1,
+      id: docId,
+      name: data.name,
+      brand: data.brand,
+      slug: data.slug,
+      imageUrl: data.imageUrl,
+      elo: data.elo?.overall || 1500,
+      winRate: battles > 0 ? wins / battles : 0,
+      battles,
+      movement: "stable",
+    });
   }
 
   if (fragrances.length === 0) {
@@ -144,10 +264,18 @@ async function getNoteData(noteSlug: string): Promise<NoteData | null> {
 }
 
 /**
- * Force dynamic rendering - note pages are server-rendered on demand
- * to avoid OOM during build (each page fetches full fragrances collection)
+ * Cached version of getNoteData
+ * - unstable_cache: caches across requests for 10 minutes (matches revalidate)
+ * - cache(): deduplicates within a single request (metadata + page render)
  */
-export const dynamic = "force-dynamic";
+const getNoteData = cache(
+  unstable_cache(getNoteDataInternal, ["note-data"], {
+    revalidate: 600, // 10 minutes, matches page revalidate
+  })
+);
+
+// With efficient queries and caching, we no longer need force-dynamic
+// Pages are cached for 10 minutes via revalidate setting
 
 // No static params - all note pages rendered on-demand
 export async function generateStaticParams() {

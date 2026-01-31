@@ -39,6 +39,38 @@
         { "fieldPath": "brandSlug", "order": "ASCENDING" },
         { "fieldPath": "elo.overall", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "fragrances",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "notes.top", "arrayConfig": "CONTAINS" },
+        { "fieldPath": "elo.overall", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "fragrances",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "notes.middle", "arrayConfig": "CONTAINS" },
+        { "fieldPath": "elo.overall", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "fragrances",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "notes.base", "arrayConfig": "CONTAINS" },
+        { "fieldPath": "elo.overall", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "fragrances",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "notes.all", "arrayConfig": "CONTAINS" },
+        { "fieldPath": "elo.overall", "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []
