@@ -42,43 +42,44 @@ async function getAllBrands(): Promise<{ name: string; slug: string }[]> {
 }
 
 /**
- * Get brand data by slug
+ * Get brand data by slug - uses brandSlug field for efficient queries
  */
 async function getBrandData(slug: string): Promise<BrandData | null> {
   const db = getAdminFirestore();
 
-  // Get all fragrances and find the brand by matching slug
+  // Query directly by brandSlug (requires backfill script to have run)
   const snapshot = await db
     .collection("fragrances")
+    .where("brandSlug", "==", slug)
     .orderBy("elo.overall", "desc")
     .get();
+
+  if (snapshot.empty) {
+    return null;
+  }
 
   let brandName: string | null = null;
   const fragrances: RankedFragrance[] = [];
 
   for (const doc of snapshot.docs) {
     const data = doc.data() as Fragrance;
-    const thisBrandSlug = slugify(data.brand);
+    if (!brandName) brandName = data.brand;
 
-    if (thisBrandSlug === slug) {
-      if (!brandName) brandName = data.brand;
+    const battles = data.stats?.battles?.overall || 0;
+    const wins = data.stats?.wins?.overall || 0;
 
-      const battles = data.stats?.battles?.overall || 0;
-      const wins = data.stats?.wins?.overall || 0;
-
-      fragrances.push({
-        rank: fragrances.length + 1,
-        id: doc.id,
-        name: data.name,
-        brand: data.brand,
-        slug: data.slug,
-        imageUrl: data.imageUrl,
-        elo: data.elo?.overall || 1500,
-        winRate: battles > 0 ? wins / battles : 0,
-        battles,
-        movement: "stable",
-      });
-    }
+    fragrances.push({
+      rank: fragrances.length + 1,
+      id: doc.id,
+      name: data.name,
+      brand: data.brand,
+      slug: data.slug,
+      imageUrl: data.imageUrl,
+      elo: data.elo?.overall || 1500,
+      winRate: battles > 0 ? wins / battles : 0,
+      battles,
+      movement: "stable",
+    });
   }
 
   if (!brandName || fragrances.length === 0) {

@@ -9,6 +9,7 @@ import {
 } from "@/lib/fragrantica";
 import { DEFAULT_ELO, type FragrancePublic, type ArenaFlags } from "@/types";
 import { invalidateFragranceCache } from "@/lib/fragranceCache";
+import { slugify } from "@/lib/seo";
 
 interface AddFragranceRequest {
   url: string;
@@ -122,6 +123,7 @@ export async function POST(
     const fragranceDoc = {
       name: data.name,
       brand: data.brand,
+      brandSlug: slugify(data.brand),
       slug,
       imageUrl: data.imageUrl,
       arenas: data.arenas,

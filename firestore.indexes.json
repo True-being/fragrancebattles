@@ -31,6 +31,14 @@
         { "fieldPath": "arenas.unisex", "order": "ASCENDING" },
         { "fieldPath": "randomOrder", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "fragrances",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "brandSlug", "order": "ASCENDING" },
+        { "fieldPath": "elo.overall", "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

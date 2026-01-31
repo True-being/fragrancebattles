@@ -26,8 +26,8 @@ export const metadata: Metadata = {
     "fragrance ranking",
   ],
   icons: {
-    icon: "/logo.png",
-    apple: "/logo.png",
+    icon: "/images/logo.png",
+    apple: "/images/logo.png",
   },
   openGraph: {
     type: "website",
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     images: [
       {
-        url: "/og-image.png",
+        url: "/images/og-image.png",
         width: 1200,
         height: 630,
         alt: "Fragrance Battles - Two Enter. One Wins.",
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
     title: "Fragrance Battles — Two Enter. One Wins.",
     description:
       "Head-to-head fragrance battles. Vote for your favorites and see real-time rankings.",
-    images: ["/og-image.png"],
+    images: ["/images/og-image.png"],
   },
   robots: {
     index: true,
@@ -80,7 +80,7 @@ export default function RootLayout({
             <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
               <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
                 <Image
-                  src="/logo.png"
+                  src="/images/logo.png"
                   alt="Fragrance Battles"
                   width={32}
                   height={32}

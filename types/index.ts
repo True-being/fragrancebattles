@@ -39,6 +39,7 @@ export interface Fragrance {
   id: string;
   name: string;
   brand: string;
+  brandSlug?: string; // Slugified brand name for efficient queries
   slug: string;
   imageUrl: string;
   arenas: ArenaFlags;

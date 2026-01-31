@@ -24,7 +24,7 @@ export default function NavBar() {
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3">
               <Image
-                src="/logo.png"
+                src="/images/logo.png"
                 alt="Fragrance Battles"
                 width={40}
                 height={40}
