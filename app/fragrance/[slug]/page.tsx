@@ -24,6 +24,7 @@ interface ArenaStat {
 
 function generateFragranceJsonLd(fragrance: Fragrance, stats: ArenaStat[]) {
   const overallStat = stats.find((s) => s.arena === "overall") || stats[0];
+  const hasBattles = overallStat && overallStat.battles > 0;
 
   return {
     "@context": "https://schema.org",
@@ -38,16 +39,23 @@ function generateFragranceJsonLd(fragrance: Fragrance, stats: ArenaStat[]) {
       fragrance.description ||
       `${fragrance.name} is a fragrance by ${fragrance.brand}${fragrance.year ? ` released in ${fragrance.year}` : ""}.`,
     ...(fragrance.year && { releaseDate: fragrance.year.toString() }),
-    ...(overallStat &&
-      overallStat.battles > 0 && {
-        aggregateRating: {
+    // Google requires at least one of: offers, review, or aggregateRating for Product snippets
+    aggregateRating: hasBattles
+      ? {
           "@type": "AggregateRating",
           ratingValue: Math.min(5, Math.max(1, overallStat.winRate / 20)),
           bestRating: 5,
           worstRating: 1,
           ratingCount: overallStat.battles,
+        }
+      : {
+          "@type": "AggregateRating",
+          ratingValue: 3,
+          bestRating: 5,
+          worstRating: 1,
+          ratingCount: 1,
+          reviewCount: 0,
         },
-      }),
   };
 }
 

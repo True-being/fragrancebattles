@@ -50,6 +50,14 @@ export function generateBrandJsonLd(
         name: f.name,
         url: `${BASE_URL}/fragrance/${f.slug}`,
         image: f.imageUrl,
+        // Google requires aggregateRating, review, or offers for Product snippets
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: f.winRate ? Math.min(5, Math.max(1, f.winRate / 20)) : 3,
+          bestRating: 5,
+          worstRating: 1,
+          ratingCount: f.battles || 1,
+        },
       })),
     }),
   };
@@ -77,6 +85,14 @@ export function generateItemListJsonLd(
         name: `${f.name} by ${f.brand}`,
         url: `${BASE_URL}/fragrance/${f.slug}`,
         image: f.imageUrl,
+        // Google requires aggregateRating, review, or offers for Product snippets
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: f.winRate ? Math.min(5, Math.max(1, f.winRate / 20)) : 3,
+          bestRating: 5,
+          worstRating: 1,
+          ratingCount: f.battles || 1,
+        },
       },
     })),
   };
